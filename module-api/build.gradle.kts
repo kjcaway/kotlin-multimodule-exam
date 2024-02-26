@@ -7,6 +7,8 @@ group = projectGroup
 version = applicationVersion
 
 dependencies {
+    implementation(project(":module-common"))
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
