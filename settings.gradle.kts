@@ -1,5 +1,6 @@
 rootProject.name = "multimodule-exam"
 include("module-api")
+include("module-common")
 
 pluginManagement {
     val kotlinVersion: String by settings
