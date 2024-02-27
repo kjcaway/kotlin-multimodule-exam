@@ -37,3 +37,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Custom ###
+logs/
+!**/src/main/resources/application-local.yml
