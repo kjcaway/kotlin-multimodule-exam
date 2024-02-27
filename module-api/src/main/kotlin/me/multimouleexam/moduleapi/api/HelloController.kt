@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class HelloController {
+
     @GetMapping
-    fun get():ResponseEntity<*> {
+    fun get(): ResponseEntity<*> {
         val now = DateUtil.getNowDateStr()
         return ResponseEntity.ok(now)
     }
