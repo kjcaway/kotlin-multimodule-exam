@@ -1,4 +1,4 @@
-package me.multimouleexam.util
+package me.multimoduleexam.util
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
