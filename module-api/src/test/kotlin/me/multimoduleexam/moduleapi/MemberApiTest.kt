@@ -1,4 +1,4 @@
-package me.multimouleexam.moduleapi
+package me.multimoduleexam.moduleapi
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith

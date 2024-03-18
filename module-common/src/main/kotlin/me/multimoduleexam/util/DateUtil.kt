@@ -1,4 +1,4 @@
-package me.multimouleexam.util
+package me.multimoduleexam.util
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat

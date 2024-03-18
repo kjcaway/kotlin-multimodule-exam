@@ -1,4 +1,4 @@
-package me.multimouleexam.domain
+package me.multimoduleexam.domain
 
 import jakarta.persistence.*
 
