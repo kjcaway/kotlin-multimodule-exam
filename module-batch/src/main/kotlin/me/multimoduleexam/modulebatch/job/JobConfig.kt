@@ -18,25 +18,25 @@ import org.springframework.transaction.PlatformTransactionManager
 class JobConfig {
 
     @Bean
-    fun simpleJob1(jobRepository: JobRepository, simpleStep1: Step): Job {
+    fun simpleJob(jobRepository: JobRepository, simpleStep: Step): Job {
         return JobBuilder("simpleJob", jobRepository)
-            .start(simpleStep1)
+            .start(simpleStep)
             .build()
     }
 
     @Bean
-    fun simpleStep1(
+    fun simpleStep(
         jobRepository: JobRepository,
         testTasklet: Tasklet,
         platformTransactionManager: PlatformTransactionManager
     ): Step {
-        return StepBuilder("simpleStep1", jobRepository)
+        return StepBuilder("simpleStep", jobRepository)
             .tasklet(testTasklet, platformTransactionManager).build()
     }
 
     @Bean
     fun testTasklet(): Tasklet {
-        return (Tasklet { contribution: StepContribution?, chunkContext: ChunkContext? ->
+        return (Tasklet { contribution, chunkContext ->
             println("tasklet")
             RepeatStatus.FINISHED
         })
