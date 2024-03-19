@@ -23,7 +23,8 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.testcontainers:mysql:1.17.6")
 
-
+    /* H2DB */
+    implementation("com.h2database:h2:2.2.224")
 }
 
 tasks.jar {
