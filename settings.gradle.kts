@@ -1,5 +1,6 @@
 rootProject.name = "multimodule-exam"
 include("module-api")
+include("module-api-exam")
 include("module-common")
 include("module-domain")
 include("module-batch")
