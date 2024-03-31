@@ -1,14 +1,14 @@
 package me.multimoduleexam.moduleapi.api
 
-import com.google.protobuf.Api
 import me.multimoduleexam.domain.MemberRepository
+import me.multimoduleexam.moduleapi.api.dto.ApiRequestDto
 import me.multimoduleexam.moduleapi.api.dto.ApiResult
 import me.multimoduleexam.moduleapi.exception.CustomRuntimeException
 import me.multimoduleexam.util.DateUtil
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -33,5 +33,10 @@ class HelloController(
     @GetMapping("/error")
     fun getErrorMessage(): ApiResult<*> {
         throw CustomRuntimeException(HttpStatus.BAD_REQUEST)
+    }
+
+    @PostMapping("/data-test")
+    fun postDataTest(@RequestBody data: ApiRequestDto): ApiResult<*> {
+        return ApiResult.ok(data)
     }
 }
