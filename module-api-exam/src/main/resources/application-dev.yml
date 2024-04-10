@@ -17,3 +17,8 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+
+k8sConfig:
+  app:
+    datasourceUsername: ${DATASOURCE_USERNAME}
+    datasourcePassword: ${DATASOURCE_PASSWORD}
