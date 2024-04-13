@@ -1,9 +1,10 @@
 package me.multimoduleexam.moduleapi.api
 
+import jakarta.validation.Valid
 import me.multimoduleexam.domain.MemberRepository
 import me.multimoduleexam.moduleapi.api.dto.ApiRequestDto
 import me.multimoduleexam.moduleapi.api.dto.ApiResult
-import me.multimoduleexam.moduleapi.api.dto.MemberDto
+import me.multimoduleexam.moduleapi.api.dto.MemberRequestDto
 import me.multimoduleexam.moduleapi.exception.CustomRuntimeException
 import me.multimoduleexam.util.DateUtil
 import org.springframework.http.HttpStatus
@@ -32,8 +33,8 @@ class HelloController(
     }
 
     @PostMapping("/member")
-    fun postMember(@RequestBody dto: MemberDto): ApiResult<*> {
-        memberRepository.save(MemberDto.toEntity(dto))
+    fun postMember(@RequestBody @Valid dto: MemberRequestDto): ApiResult<*> {
+        memberRepository.save(MemberRequestDto.toEntity(dto))
         return ApiResult.ok()
     }
 

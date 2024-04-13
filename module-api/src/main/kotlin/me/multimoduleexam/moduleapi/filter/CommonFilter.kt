@@ -10,20 +10,20 @@ import org.springframework.web.filter.GenericFilterBean
 
 @Component
 @Order(1)
-class CommonFilter: GenericFilterBean() {
+class CommonFilter : GenericFilterBean() {
 
 
     override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
         val httpServletRequest = request as HttpServletRequest
-        if(includeUrlPattern(httpServletRequest)){
+        if (includeUrlPattern(httpServletRequest)) {
             logger.info("Reqeust method : ${httpServletRequest.method}, url : ${httpServletRequest.requestURL}")
         }
         chain?.doFilter(request, response)
     }
 
-    private fun includeUrlPattern(httpServletRequest: HttpServletRequest): Boolean{
+    private fun includeUrlPattern(httpServletRequest: HttpServletRequest): Boolean {
         val uri = httpServletRequest.requestURI
-        if(uri.startsWith("/api")){
+        if (uri.startsWith("/api")) {
             return true
         }
         return false
