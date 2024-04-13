@@ -23,7 +23,10 @@ class CustomExceptionHandler : ResponseEntityExceptionHandler() {
         request: WebRequest
     ): ResponseEntity<Any>? {
         logger.error(ex.message, ex)
-        return ResponseEntity<Any>(ApiResult.error(ex.message), HttpStatus.BAD_REQUEST)
+
+        val message = ex.fieldErrors.firstNotNullOf { it.defaultMessage }
+
+        return ResponseEntity<Any>(ApiResult.error(message), HttpStatus.BAD_REQUEST)
     }
 
     override fun handleHttpMessageNotReadable(

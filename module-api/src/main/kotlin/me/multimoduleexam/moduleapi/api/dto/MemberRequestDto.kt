@@ -1,13 +1,17 @@
 package me.multimoduleexam.moduleapi.api.dto
 
+import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
 import me.multimoduleexam.domain.Member
 
 data class MemberRequestDto(
     val id: Long?,
+    @field:NotBlank(message = "name cannot be blank")
     val name: String,
-    @field:Email(message = "이메일 형식이 아닙니다.")
+    @field:Email(message = "email is invalid")
     val email: String,
+    @field:Digits(integer = 3 ,fraction = 0)
     val age: Int
 ) {
     companion object {
