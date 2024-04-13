@@ -3,6 +3,7 @@ package me.multimoduleexam.moduleapi.api
 import me.multimoduleexam.domain.MemberRepository
 import me.multimoduleexam.moduleapi.api.dto.ApiRequestDto
 import me.multimoduleexam.moduleapi.api.dto.ApiResult
+import me.multimoduleexam.moduleapi.api.dto.MemberDto
 import me.multimoduleexam.moduleapi.exception.CustomRuntimeException
 import me.multimoduleexam.util.DateUtil
 import org.springframework.http.HttpStatus
@@ -28,6 +29,12 @@ class HelloController(
     fun getMember(): ApiResult<*> {
         val result = memberRepository.findAll()
         return ApiResult.ok(result)
+    }
+
+    @PostMapping("/member")
+    fun postMember(@RequestBody dto: MemberDto): ApiResult<*> {
+        memberRepository.save(MemberDto.toEntity(dto))
+        return ApiResult.ok()
     }
 
     @GetMapping("/error")

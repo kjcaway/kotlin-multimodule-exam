@@ -7,7 +7,7 @@ import jakarta.persistence.*
 data class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long?,
 
     val name: String,
     val email: String,
