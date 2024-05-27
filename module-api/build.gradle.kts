@@ -35,7 +35,7 @@ tasks.jar {
 }
 
 tasks.test {
-    enabled = false
+    enabled = true
     useJUnitPlatform {
         includeTags("api") // if use like that, only execute class with @Tag.
     }

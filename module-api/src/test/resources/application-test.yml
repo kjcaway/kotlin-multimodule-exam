@@ -4,7 +4,7 @@ spring:
   #    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver      만약, yml 통해 testcontainer를 생성하면 해당 driver 설정 필요
   jpa:
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         show_sql: true
