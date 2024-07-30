@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val projectGroup: String by project
 val applicationVersion: String by project
 
@@ -21,13 +19,16 @@ dependencies {
     /* Mysql */
     implementation("mysql:mysql-connector-java:8.0.28")
 
+    /* Neo4j */
+    implementation("org.neo4j.driver:neo4j-java-driver:5.22.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-neo4j")
+
+
     /* Test Containers*/
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.testcontainers:mysql:1.17.6")
-
-
 }
 
 tasks.jar {

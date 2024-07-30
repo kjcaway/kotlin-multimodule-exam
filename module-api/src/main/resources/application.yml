@@ -13,3 +13,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+  neo4j:
+    authentication:
+      username: neo4j
+      password: password
+    uri: bolt://localhost:7687
