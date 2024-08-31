@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/hello")
 class HelloController (
-    @Value("\${k8sConfig.app.datasourceUsername}") val datasourceUsername: String,
+    @Value("\${k8sConfig.app.datasourceUsername:}") val datasourceUsername: String,
 ) {
 
     @GetMapping
