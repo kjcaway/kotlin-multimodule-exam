@@ -4,6 +4,7 @@ include("module-api-exam")
 include("module-common")
 include("module-domain")
 include("module-batch")
+include("ma-courtboard-api")
 
 pluginManagement {
     val kotlinVersion: String by settings

@@ -1,5 +1,6 @@
 package me.multimoduleexam.util
 
+import java.util.*
 import kotlin.random.Random
 
 object GeneratorUtil {
@@ -12,5 +13,13 @@ object GeneratorUtil {
             .map { Random.nextInt(0, charPool.size) }
             .map(charPool::get)
             .joinToString("")
+    }
+
+    /**
+     * get uuid without -
+     */
+    fun generateUUIDWithoutDashes(): String {
+        val uuid = UUID.randomUUID().toString().replace("-", "")
+        return uuid
     }
 }
