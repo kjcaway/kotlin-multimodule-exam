@@ -1,5 +1,6 @@
 package me.courtboard.api.api.tactics
 
+import jakarta.validation.Valid
 import me.courtboard.api.api.common.dto.ApiResult
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.service.TacticsService
@@ -11,7 +12,7 @@ class TacticsController(
 ) {
 
     @PostMapping("/api/tactics")
-    fun postTactics(@RequestBody dto: TacticsReqDto): ApiResult<*> {
+    fun postTactics(@RequestBody @Valid dto: TacticsReqDto): ApiResult<*> {
         val result = tacticsService.createTactic(dto)
         return ApiResult.ok(result)
     }

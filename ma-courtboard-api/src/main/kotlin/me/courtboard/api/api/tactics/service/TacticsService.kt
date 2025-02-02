@@ -15,6 +15,14 @@ class TacticsService(
 ) {
 
     fun createTactic(dto: TacticsReqDto): Map<String, Any> {
+        if (dto.hasAllSameBallPosition()) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals")
+        }
+
+        if (dto.hasAllSamePlayerPosition()) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each player formations cannot be equals")
+        }
+
         val tacticsEntity = dto.toEntity()
         tacticsEntity.states = JsonUtil.convertToJsonStr(mapOf("formations" to dto.formations))
         tacticsEntity.createdId = "UNKNOWN"

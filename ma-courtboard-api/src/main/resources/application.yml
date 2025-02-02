@@ -13,6 +13,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+    open-in-view: false
 
 app:
   allowed-origin: http://localhost:3000
