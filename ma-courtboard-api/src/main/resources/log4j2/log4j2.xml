@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug" monitorInterval="5">
+    <!--Common -->
+    <Properties>
+        <Property name="appName">ma-courtboard-api</Property>
+        <Property name="consoleLayout">[%d{yyyy-MM-dd HH:mm:ss}] [%-5p] [%c{1}:%L] - %m%n</Property>
+        <Property name="fileLayout">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+    </Properties>
+
+    <!-- Appender -->
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${consoleLayout}"/>
+        </Console>
+        <!--ConsoleAppender, RollingFileAppneder -->
+        <RandomAccessFile name="file"
+                          fileName="/logs/${appName}/app.log"
+                          filePattern="/logs/${appName}/app.%d{yyyy-MM-dd-hh}.log"
+                          immediateFlush="false" append="false">
+            <PatternLayout pattern="${fileLayout}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5" fileIndex="min"> <!-- create files until 5 -->
+                <Delete basePath="/logs" maxDepth="3">
+                    <IfLastModified age="10d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RandomAccessFile>
+    </Appenders>
+
+    <!--TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
+    <Loggers>
+        <!-- root logger-->
+        <Root level="info">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Root>
+
+        <!-- springframework logging -->
+        <Logger name="org.springframework" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Logger>
+
+        <Logger name="me.courtboard.api" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Logger>
+    </Loggers>
+</Configuration>

@@ -1,7 +1,11 @@
 server:
   port: 8080
+  shutdown: graceful
 
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:mysql://localhost:3306/testdb
     username: root
@@ -14,8 +18,11 @@ spring:
     hibernate:
       ddl-auto: none
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+
 app:
   allowed-origin: http://localhost:3000
-
-logging:
-  config: classpath:log4j2/log4j2.xml

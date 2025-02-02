@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class ShutdownListener : ApplicationListener<ContextClosedEvent> {
 
     override fun onApplicationEvent(event: ContextClosedEvent) {
-        println("shutdown application.")
+        // todo:
         return
     }
 }

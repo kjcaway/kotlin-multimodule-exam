@@ -1,4 +1,6 @@
-FROM amazoncorretto:17
+FROM amazoncorretto:17-alpine
+
+RUN apk add --no-cache vim curl procps
 
 # argument jar path
 ARG JAR_FILE=build/libs/*.jar

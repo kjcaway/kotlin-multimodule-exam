@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class StartupListener : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        println("start up with profile: ${System.getProperty("spring.profiles.active")}")
+        // todo:
         return
     }
 }

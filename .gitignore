@@ -41,3 +41,6 @@ bin/
 ### Custom ###
 logs/
 /application-local.yml
+
+*.tar
+*-prod.yml
