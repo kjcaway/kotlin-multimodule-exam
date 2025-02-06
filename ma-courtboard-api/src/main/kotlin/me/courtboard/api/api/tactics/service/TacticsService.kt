@@ -24,7 +24,12 @@ class TacticsService(
         }
 
         val tacticsEntity = dto.toEntity()
-        tacticsEntity.states = JsonUtil.convertToJsonStr(mapOf("formations" to dto.formations))
+        tacticsEntity.states = JsonUtil.convertToJsonStr(
+            mapOf(
+                "formations" to dto.formations,
+                "playerInfo" to dto.playerInfo
+            )
+        )
         tacticsEntity.createdId = "UNKNOWN"
 
         val entity = tacticsRepository.save(tacticsEntity)

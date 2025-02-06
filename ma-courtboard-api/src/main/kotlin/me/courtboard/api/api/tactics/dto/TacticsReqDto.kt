@@ -11,7 +11,9 @@ data class TacticsReqDto(
     @field:Size(max = 1000, message = "Description must not exceed 1000 characters")
     val description: String?,
     @field:NotNull(message = "Formations are required")
-    val formations: Map<String, Formation>
+    val formations: Map<String, Formation>,
+    @field:NotNull(message = "PlayerInfo are required")
+    val playerInfo: List<PlayerInfo>
 ) {
     data class Formation(
         @field:NotEmpty(message = "Players list cannot be empty")
@@ -20,22 +22,25 @@ data class TacticsReqDto(
         val ball: Ball
     )
 
+    data class PlayerInfo(
+        @field:Positive(message = "Invalid player ID")
+        val id: Long,
+        @field:NotBlank(message = "Color is required")
+        val color: String,
+        @field:NotBlank(message = "Name is required")
+        val name: String,
+    )
+
     data class Player(
         @field:Positive(message = "Invalid player ID")
         val id: Long,
         val x: Int,
         val y: Int,
-        @field:NotBlank(message = "Color is required")
-        val color: String,
-        @field:NotBlank(message = "Name is required")
-        val name: String,
-        val visible: Boolean?
     )
 
     data class Ball(
         val x: Int,
         val y: Int,
-        val visible: Boolean?
     )
 
     fun toEntity(): TacticsEntity {

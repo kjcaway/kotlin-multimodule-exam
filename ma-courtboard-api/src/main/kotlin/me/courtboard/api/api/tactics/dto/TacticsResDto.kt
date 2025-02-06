@@ -10,7 +10,8 @@ data class TacticsResDto(
     val states: States
 ) {
     data class States(
-        val formations: Map<String, Formation>
+        val formations: Map<String, Formation>,
+        val playerInfo: List<PlayerInfo>
     )
 
     data class Formation(
@@ -21,16 +22,18 @@ data class TacticsResDto(
     data class Ball(
         val x: Int,
         val y: Int,
-        val visible: Boolean?
     )
 
     data class Player(
         val id: Long,
         val x: Int,
         val y: Int,
-        val color: String,
+    )
+
+    data class PlayerInfo(
+        val id: Long,
         val name: String,
-        val visible: Boolean?
+        val color: String,
     )
 
     companion object {
