@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0.22
+    platform: linux/amd64 # 맥북에서 linux 용 도커이미지를 만들때 필요
+    container_name: mysql_boot
+    hostname: mysql_boot
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - /home/username/mnt/mysql/data:/var/lib/mysql
+      - /home/username/mnt/mysql/config:/etc/mysql/conf.d
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      TZ: Asia/Seoul
+    networks:
+      - ubuntu_02
+  nginx:  # courtboard -> nginx로 변경한 이유는 certbot을 위한 스크립트에서 nginx를 참조하기 때문
+    image: courtboard:0.9
+    container_name: courtboard
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    networks:
+      - ubuntu_02
+    depends_on:
+      - courtboard-api
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  courtboard-api:
+    image: courtboard-api:0.9
+    container_name: courtboard-api
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/testdb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8080:8080"
+    networks:
+      - ubuntu_02
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  ubuntu_02:
