@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 object DateNewUtil {
     private const val DEFAULT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS"
-    private val KST_ZONE: ZoneId = ZoneId.of("Asia/Seoul")
+    val KST_ZONE: ZoneId = ZoneId.of("Asia/Seoul")
 
     /**
      * get now datetime string by default formatted(yyyy-MM-dd HH:mm:ss.SSS)
