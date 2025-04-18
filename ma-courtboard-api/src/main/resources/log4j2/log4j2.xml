@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="debug" monitorInterval="5">
+<Configuration status="info" monitorInterval="5">
     <!--Common -->
     <Properties>
         <Property name="appName">ma-courtboard-api</Property>
-        <Property name="consoleLayout">[%d{yyyy-MM-dd HH:mm:ss}] [%-5p] [%c{1}:%L] - %m%n</Property>
-        <Property name="fileLayout">%d [%t] %-5level %c(%M:%L) - %m%n</Property>
+        <Property name="consoleLayout">%d{yyyy-MM-dd HH:mm:ss.SSS}{GMT+9} %5p %c{1}:%L - %m%n</Property>
+        <Property name="fileLayout">%d{yyyy-MM-dd HH:mm:ss.SSS}{GMT+9} %5p %c{1}:%L - %m%n</Property>
     </Properties>
 
     <!-- Appender -->
@@ -41,6 +41,14 @@
         <Logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file"/>
+        </Logger>
+
+        <Logger name="com.zaxxer.hikari" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.zaxxer.hikariConfig" level="info" additivity="false">
+            <AppenderRef ref="console"/>
         </Logger>
 
         <Logger name="me.courtboard.api" level="info" additivity="false">

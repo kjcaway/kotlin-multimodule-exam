@@ -1,21 +1,34 @@
-# for deploy to server
+#!/bin/bash
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
 
-echo "deploying to server start"
+version="$1"
 
-echo "gradle build..."
+help()
+{
+    echo -e "${GREEN}Usage : $0 [version]"
+    echo -e "${CYAN}Example: $0 1.1"
+}
+
+echo -e "${GREEN}deploying to server start"
+
+echo -e "${GREEN}gradle build..."
 cd ..
-gradlew :ma-courtboard-api:build
+./gradlew :ma-courtboard-api:build
 cd ma-courtboard-api
 
-echo "docker build..."
-docker build --platform linux/amd64 -t courtboard-api:0.9 .
+echo -e "${CYAN}docker build..."
+docker build --platform linux/amd64 -t courtboard-api:${version} .
 
-echo "docker image to file..."
-docker save -o ./courtboard-api.tar courtboard-api:0.9
+echo -e "${CYAN}docker image to file..."
+docker save -o ./courtboard-api-${version}.tar courtboard-api:${version}
+cp ./courtboard-api-${version}.tar /Users/jckang/courtboard-api-${version}.tar
 
-echo "docker file to server with scp"
-scp ./courtboard-api.tar 유저명@원격지:/home/유저명
+echo -e "${CYAN}docker file to server with scp"
+cd /Users/jckang
+scp -i ssh-key???.pem ./courtboard-api-${version}.tar ??@???:/home/??
 
-echo "end to ready deploy"
-echo "please load image in server (ex. docker load -i courtboard-api.tar)"
-echo "and run container (ex. docker run --name courtboard-api -d -p 8080:8080 courtboard-api:0.9)"
+echo -e "${YELLOW}end to ready deploy"
+echo -e "please load image in server (ex. docker load -i courtboard-api.tar)"
+echo -e "and run container (ex. docker run --name courtboard-api -d -p 8080:8080 courtboard-api:0.9)"
