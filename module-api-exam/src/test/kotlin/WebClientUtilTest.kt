@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test
 @Tag("unit")
 class WebClientUtilTest {
 
+    @EnabledIfReachable(
+        url = "http://localhost:8081",
+        timeoutMillis = 1000
+    )
     @Test
     fun `test web client`() {
         val res = WebClientUtil
