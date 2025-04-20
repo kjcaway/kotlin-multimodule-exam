@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(EnabledIfReachableCondition::class)
 annotation class EnabledIfReachable(
-    val url: String,
+    val host: String,
+    val port: Int,
     val timeoutMillis: Int
 )

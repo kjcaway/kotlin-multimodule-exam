@@ -4,10 +4,12 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled
 import org.junit.jupiter.api.extension.ExecutionCondition
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.helpers.AnnotationHelper.findAnnotation
+import java.io.IOException
 import java.lang.String.format
 import java.lang.reflect.AnnotatedElement
-import java.net.HttpURLConnection
-import java.net.URL
+import java.net.InetSocketAddress
+import java.net.Socket
+
 
 class EnabledIfReachableCondition : ExecutionCondition {
 
@@ -22,31 +24,40 @@ class EnabledIfReachableCondition : ExecutionCondition {
         annotation: EnabledIfReachable,
         element: AnnotatedElement
     ): ConditionEvaluationResult {
-        val url = annotation.url
+        val host = annotation.host
+        val port = annotation.port
         val timeoutMillis = annotation.timeoutMillis
-        val reachable = pingUrl(url, timeoutMillis)
 
-        return if (reachable)
-            enabled(format("%s is enabled because %s is reachable", element, url))
-        else
+        return try {
+            val reachable = pingHost(host, port, timeoutMillis)
+            if (reachable)
+                enabled(format("%s is enabled because %s is reachable", element, host))
+            else
+                disabled(
+                    format(
+                        "%s is disabled because %s could not be reached in %dms",
+                        element, host, timeoutMillis
+                    )
+                )
+        } catch (e: Exception) {
+            // 연결 시도 중 예외 발생 시 테스트를 disable 처리
             disabled(
                 format(
-                    "%s is disabled because %s could not be reached in %dms",
-                    element, url, timeoutMillis
+                    "%s is disabled because %s check failed with: %s",
+                    element, host, e.message ?: "unknown error"
                 )
             )
+        }
     }
 
-    private fun pingUrl(url: String, timeoutMillis: Int): Boolean {
-        return try {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.connectTimeout = timeoutMillis
-            connection.readTimeout = timeoutMillis
-            connection.requestMethod = "HEAD"
-
-            return true
-        } catch (e: Exception) {
-            false
+    private fun pingHost(host: String, port: Int, timeout: Int): Boolean {
+        try {
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress(host, port), timeout)
+                return true
+            }
+        } catch (e: IOException) {
+            return false
         }
     }
 }
