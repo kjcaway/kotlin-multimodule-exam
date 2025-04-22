@@ -27,6 +27,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 tasks.jar {
@@ -34,5 +35,6 @@ tasks.jar {
 }
 
 tasks.test {
-    enabled = false
+    enabled = true
+    useJUnitPlatform()
 }

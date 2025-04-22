@@ -16,6 +16,17 @@ object GeneratorUtil {
     }
 
     /**
+     * get random number string in pool(0-9)
+     */
+    fun generateRandomNumber(length: Int): String {
+        val charPool: List<Char> = ('0' .. '9').toList()
+        return (1 .. length)
+            .map { Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")
+    }
+
+    /**
      * get uuid without -
      */
     fun generateUUIDWithoutDashes(): String {
