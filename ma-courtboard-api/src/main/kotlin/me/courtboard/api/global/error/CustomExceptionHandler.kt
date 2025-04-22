@@ -1,7 +1,6 @@
-package me.courtboard.api.api.error.handler
+package me.courtboard.api.global.error
 
-import me.courtboard.api.api.common.dto.ApiResult
-import me.courtboard.api.api.error.dto.CustomRuntimeException
+import me.courtboard.api.global.dto.ApiResult
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode

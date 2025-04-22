@@ -1,9 +1,9 @@
 package me.courtboard.api.api.tactics
 
 import jakarta.validation.Valid
-import me.courtboard.api.api.common.dto.ApiResult
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.service.TacticsService
+import me.courtboard.api.global.dto.ApiResult
 import org.springframework.web.bind.annotation.*
 
 @RestController

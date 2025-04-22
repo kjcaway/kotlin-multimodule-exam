@@ -1,4 +1,4 @@
-package me.courtboard.api.api.error.dto
+package me.courtboard.api.global.error
 
 import org.springframework.http.HttpStatusCode
 

@@ -1,6 +1,6 @@
 package me.courtboard.api.api.tactics.service
 
-import me.courtboard.api.api.error.dto.CustomRuntimeException
+import me.courtboard.api.global.error.CustomRuntimeException
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto.Companion.toTacticsResDto

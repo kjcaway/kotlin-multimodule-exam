@@ -1,4 +1,4 @@
-package me.courtboard.api.api.common.dto
+package me.courtboard.api.global.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
