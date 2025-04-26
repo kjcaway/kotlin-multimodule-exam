@@ -26,6 +26,12 @@ dependencies {
     // runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("org.postgresql:postgresql")
 
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+    implementation("org.mindrot:jbcrypt:0.4")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
