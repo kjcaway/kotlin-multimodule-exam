@@ -32,6 +32,7 @@ class JwtProvider(
             .subject(userId)
             .issuedAt(now)
             .expiration(expiryDate)
+            .claim("id", claimMap["id"])
             .claim("name", claimMap["name"])
             .claim("email", claimMap["email"])
             .signWith(secretKey)

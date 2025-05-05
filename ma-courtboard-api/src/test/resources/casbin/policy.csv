@@ -1,0 +1,4 @@
+p, admin, courtboard, *, (get)|(post)|(put)|(delete)
+p, user, courtboard, /api/tactics, (post)
+p, user, courtboard, /api/tactics/*, (get)|(delete)
+p, user, courtboard, /api/tactics, (get)

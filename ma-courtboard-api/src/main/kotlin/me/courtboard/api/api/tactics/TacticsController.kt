@@ -12,7 +12,7 @@ class TacticsController(
 ) {
 
     @PostMapping("/api/tactics")
-    fun postTactics(@RequestBody @Valid dto: TacticsReqDto): ApiResult<*> {
+    fun postTactics(@Valid @RequestBody dto: TacticsReqDto): ApiResult<*> {
         val result = tacticsService.createTactic(dto)
         return ApiResult.ok(result)
     }

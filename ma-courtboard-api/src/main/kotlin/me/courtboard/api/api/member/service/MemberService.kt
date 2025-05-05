@@ -7,14 +7,18 @@ import me.courtboard.api.api.member.repository.MemberInfoRepository
 import me.courtboard.api.api.member.repository.MemberRepository
 import me.courtboard.api.component.CustomMailSender
 import me.courtboard.api.component.JwtProvider
+import me.courtboard.api.global.Constants
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.courtboard.api.util.PasswordUtil
 import me.multimoduleexam.cache.LocalStorage
 import me.multimoduleexam.util.GeneratorUtil
 import me.multimoduleexam.util.ValidationUtil
+import org.casbin.jcasbin.main.Enforcer
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+
 
 @Service
 class MemberService(
@@ -22,8 +26,12 @@ class MemberService(
     private val localStorage: LocalStorage<String, String>,
     private val memberRepository: MemberRepository,
     private val memberInfoRepository: MemberInfoRepository,
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
+    private val enforcer: Enforcer
 ) {
+
+    private val logger = LoggerFactory.getLogger(MemberService::class.java)
+
     fun getToken(dto: MemberLoginReqDto): Map<String,String> {
         val memberInfo = memberInfoRepository.findByEmail(dto.email)
             ?: throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
@@ -35,6 +43,7 @@ class MemberService(
         }
 
         val accessToken = jwtProvider.generateAccessToken( dto.email, mapOf(
+            "id" to memberInfo.id.toString(),
             "name" to memberInfo.name!!,
             "email" to memberInfo.email!!
         ))
@@ -50,6 +59,10 @@ class MemberService(
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email address")
         }
 
+        if (memberInfoRepository.existsByEmail(mailAddress)) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Email already exists")
+        }
+
         val code = GeneratorUtil.generateRandomNumber(6)
 
         val args = mapOf(
@@ -57,7 +70,10 @@ class MemberService(
             "##code##" to code
         )
 
-        customMailSender.sendMimeMessage("Code for sign up", mailAddress, args)
+        logger.info("Sending verification code to $mailAddress -> $code")
+
+        // customMailSender.sendMimeMessage("Code for sign up", mailAddress, args)
+
         localStorage.put(mailAddress, code)
     }
 
@@ -67,12 +83,15 @@ class MemberService(
         }
 
         val cachedCode = localStorage.get(mailAddress)
-        return code == cachedCode
+        if (cachedCode == null || code != cachedCode) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid verification code")
+        }
+        return true
     }
 
     @Transactional
     fun createNewMember(memberReqDto: MemberReqDto) {
-        if (!checkVerificationCode(memberReqDto.email, memberReqDto.code ?: "")) {
+        if (!checkVerificationCode(memberReqDto.email, memberReqDto.code)) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid verification code")
         }
 
@@ -87,5 +106,16 @@ class MemberService(
             passwd = hashedPassword
         )
         memberRepository.save(memberEntity)
+
+        localStorage.remove(memberReqDto.email)
+
+        grantRoleForUser(member.email!!, Constants.ROLE_USER)
+    }
+
+    fun grantRoleForUser(email: String, role: String) {
+        val info = memberInfoRepository.findByEmail(email)
+            ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "User not found")
+        enforcer.addRoleForUserInDomain(info.id.toString(), role, Constants.COURTBOARD)
+        enforcer.roleManager.printRoles()
     }
 }

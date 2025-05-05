@@ -35,3 +35,15 @@ app:
 
 logging:
   config: classpath:log4j2/log4j2.xml
+
+casbin:
+  enableCasbin: true
+  useSyncedEnforcer: false
+  useDistributedEnforcer: false
+  autoSave: true
+  storeType: jdbc
+  tableName: tbl_casbin_rule
+  initializeSchema: create
+  model: classpath:casbin/model.conf
+  useDefaultModelIfModelNotSetting: true
+  enableWatcher: false

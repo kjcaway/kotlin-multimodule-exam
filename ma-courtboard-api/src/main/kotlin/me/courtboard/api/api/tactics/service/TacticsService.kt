@@ -1,10 +1,11 @@
 package me.courtboard.api.api.tactics.service
 
-import me.courtboard.api.global.error.CustomRuntimeException
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto.Companion.toTacticsResDto
 import me.courtboard.api.api.tactics.repository.TacticsRepository
+import me.courtboard.api.global.CourtboardContext
+import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.JsonUtil
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -15,6 +16,7 @@ class TacticsService(
 ) {
 
     fun createTactic(dto: TacticsReqDto): Map<String, Any> {
+        val createdBy = CourtboardContext.getContext().memberId
         if (dto.hasAllSameBallPosition()) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals")
         }
@@ -30,7 +32,7 @@ class TacticsService(
                 "playerInfo" to dto.playerInfo
             )
         )
-        tacticsEntity.createdId = "UNKNOWN"
+        tacticsEntity.createdId = createdBy
 
         val entity = tacticsRepository.save(tacticsEntity)
 

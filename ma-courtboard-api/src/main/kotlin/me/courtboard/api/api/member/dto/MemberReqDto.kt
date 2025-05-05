@@ -8,7 +8,7 @@ import java.util.*
 data class MemberReqDto(
     @field:Email(message = "Invalid email format")
     val email: String,
-    @field:Size(max = 64, message = "name must not exceed 64 characters")
+    @field:Size(min = 3, max = 32, message = "name must not exceed 32 characters")
     val name: String,
     val avatarUrl: String? = null,
     @field:Size(min = 8, message = "code must not be less than 8 characters")
