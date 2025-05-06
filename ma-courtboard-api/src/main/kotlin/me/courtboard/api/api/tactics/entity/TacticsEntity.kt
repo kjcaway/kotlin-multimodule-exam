@@ -27,7 +27,7 @@ data class TacticsEntity(
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "created_id")
-    var createdId: String = "UNKNOWN_ID",
+    var createdId: String = "UNKNOWN",
 
     @Column(name = "updated_at")
     var updatedAt: LocalDateTime = LocalDateTime.now(),

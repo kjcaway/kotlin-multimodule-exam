@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TacticsRepository: JpaRepository<TacticsEntity, String> {
+    fun findAllByCreatedIdOrderByCreatedAtDesc(createdId: String): List<TacticsEntity>
 }

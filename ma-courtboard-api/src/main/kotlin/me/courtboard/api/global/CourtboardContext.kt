@@ -16,6 +16,13 @@ class CourtboardContext private constructor() {
         fun clearContext() {
             requestContext.remove()
         }
+
+        fun isLogin(): Boolean {
+            if (requestContext.get() == null) {
+                return false
+            }
+            return requestContext.get().memberId != Constants.GUEST_ID
+        }
     }
 }
 

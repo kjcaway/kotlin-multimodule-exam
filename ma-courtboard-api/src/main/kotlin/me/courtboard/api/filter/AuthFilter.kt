@@ -36,7 +36,7 @@ class AuthFilter(
                 val role = enforcer.getRolesForUser(memberId).firstOrNull() ?: Constants.ROLE_USER
                 CourtboardContext.setContext(RequestContext(memberId, role))
             } else {
-                CourtboardContext.setContext(RequestContext("UNKNOWN", Constants.ROLE_GUEST))
+                CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
             }
         } catch (e: Exception) {
             logger.error(e.localizedMessage, e)
@@ -44,8 +44,8 @@ class AuthFilter(
 //            (response as HttpServletResponse).status = HttpServletResponse.SC_UNAUTHORIZED
 //            response.contentType = "application/json"
 //            response.writer.write(JsonUtil.convertToJsonStr(ApiResult.error("Invalid JWT token")))
-            (response as HttpServletResponse).addCookie(Cookie("courtboardJWT", ""))
-            CourtboardContext.setContext(RequestContext("UNKNOWN", Constants.ROLE_GUEST))
+            (response as HttpServletResponse).addCookie(Cookie(Constants.COURTBOARD_JWT_COOKIE_NAME, ""))
+            CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
         } finally {
             chain.doFilter(request, response)
         }

@@ -1,5 +1,7 @@
 package me.courtboard.api.api.member.service
 
+import me.courtboard.api.api.member.dto.MemberInfoResDto
+import me.courtboard.api.api.member.dto.MemberInfoResDto.Companion.toMemberInfoResDto
 import me.courtboard.api.api.member.dto.MemberLoginReqDto
 import me.courtboard.api.api.member.dto.MemberReqDto
 import me.courtboard.api.api.member.entity.MemberEntity
@@ -8,6 +10,7 @@ import me.courtboard.api.api.member.repository.MemberRepository
 import me.courtboard.api.component.CustomMailSender
 import me.courtboard.api.component.JwtProvider
 import me.courtboard.api.global.Constants
+import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.courtboard.api.util.PasswordUtil
 import me.multimoduleexam.cache.LocalStorage
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.*
 
 
 @Service
@@ -124,5 +128,12 @@ class MemberService(
             ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "User not found")
         enforcer.addRoleForUserInDomain(info.id.toString(), role, Constants.COURTBOARD)
         enforcer.roleManager.printRoles()
+    }
+
+    fun getMyInfo(): MemberInfoResDto {
+        val memberId = CourtboardContext.getContext().memberId
+        val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
+            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+        return memberInfo.get().toMemberInfoResDto()
     }
 }

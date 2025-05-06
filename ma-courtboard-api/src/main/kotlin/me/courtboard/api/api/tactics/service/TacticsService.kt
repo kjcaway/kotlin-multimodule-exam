@@ -1,5 +1,7 @@
 package me.courtboard.api.api.tactics.service
 
+import me.courtboard.api.api.tactics.dto.TacticsListResDto
+import me.courtboard.api.api.tactics.dto.TacticsListResDto.Companion.toTacticsListResDto
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto.Companion.toTacticsResDto
@@ -46,5 +48,15 @@ class TacticsService(
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
         return entity.toTacticsResDto()
+    }
+
+    fun getMyTactics(): List<TacticsListResDto> {
+        if (!CourtboardContext.isLogin()) {
+            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED)
+        }
+        val memberId = CourtboardContext.getContext().memberId
+        val entityList = tacticsRepository.findAllByCreatedIdOrderByCreatedAtDesc(memberId)
+
+        return entityList.map { it.toTacticsListResDto() }
     }
 }
