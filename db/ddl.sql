@@ -12,12 +12,13 @@ CREATE TABLE tbl_tactics
 
 CREATE TABLE tbl_memberinfo
 (
-    id         uuid NOT NULL PRIMARY KEY,
-    email      VARCHAR(64),
-    name       VARCHAR(64),
-    avatar_url TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id           uuid NOT NULL PRIMARY KEY,
+    email        VARCHAR(64),
+    name         VARCHAR(64),
+    avatar_url   TEXT,
+    lastlogin_at timestamp DEFAULT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tbl_members

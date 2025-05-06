@@ -22,6 +22,9 @@ data class MemberInfoEntity(
     @Column(name = "avatar_url")
     var avatarUrl: String? = null,
 
+    @Column(name = "lastlogin_at")
+    var lastloginAt: LocalDateTime? = null,
+
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

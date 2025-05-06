@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 
 @Service
@@ -32,6 +33,7 @@ class MemberService(
 
     private val logger = LoggerFactory.getLogger(MemberService::class.java)
 
+    @Transactional
     fun getToken(dto: MemberLoginReqDto): Map<String,String> {
         val memberInfo = memberInfoRepository.findByEmail(dto.email)
             ?: throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
@@ -48,6 +50,11 @@ class MemberService(
             "email" to memberInfo.email!!
         ))
         val refreshToken = jwtProvider.generateRefreshToken(dto.email)
+
+        // last login update
+        memberInfo.lastloginAt = LocalDateTime.now()
+        memberInfoRepository.save(memberInfo)
+
         return mapOf(
             "access_token" to accessToken,
             "refresh_token" to refreshToken
