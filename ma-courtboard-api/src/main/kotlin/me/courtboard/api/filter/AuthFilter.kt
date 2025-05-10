@@ -1,20 +1,22 @@
 package me.courtboard.api.filter
 
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletRequest
-import jakarta.servlet.ServletResponse
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import me.courtboard.api.component.JwtProvider
 import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.RequestContext
+import me.courtboard.api.global.dto.ApiResult
+import me.multimoduleexam.util.JsonUtil
 import org.casbin.jcasbin.main.Enforcer
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.filter.GenericFilterBean
+import org.springframework.web.filter.OncePerRequestFilter
 
 
 @Component
@@ -22,12 +24,11 @@ import org.springframework.web.filter.GenericFilterBean
 class AuthFilter(
     private val jwtProvider: JwtProvider,
     private val enforcer: Enforcer
-) : GenericFilterBean() {
+) : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(AuthFilter::class.java)
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val httpServletRequest = request as HttpServletRequest
-        val authorization = httpServletRequest.getHeader("Authorization")
+    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
+        val authorization = request.getHeader("Authorization")
         val jwt = authorization?.substringAfter("Bearer ")
         try {
             if (jwt != null) {
@@ -38,16 +39,25 @@ class AuthFilter(
             } else {
                 CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
             }
-        } catch (e: Exception) {
+
+            chain.doFilter(request, response)
+        } catch (e: ExpiredJwtException) {
             logger.error(e.localizedMessage, e)
 
-//            (response as HttpServletResponse).status = HttpServletResponse.SC_UNAUTHORIZED
-//            response.contentType = "application/json"
-//            response.writer.write(JsonUtil.convertToJsonStr(ApiResult.error("Invalid JWT token")))
-            (response as HttpServletResponse).addCookie(Cookie(Constants.COURTBOARD_JWT_COOKIE_NAME, ""))
+            response.setHeader("Access-Control-Allow-Origin", "*")
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept")
+            response.setHeader("Access-Control-Max-Age", "3600")
+            response.status = HttpStatus.UNAUTHORIZED.value()
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+
+            response.writer.write(JsonUtil.convertToJsonStr(ApiResult.error("expired jwt token")))
+
+        } catch (e: Exception) {
+            logger.error(e.localizedMessage, e)
             CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
-        } finally {
-            chain.doFilter(request, response)
         }
     }
+
+
 }

@@ -9,4 +9,5 @@ import java.util.*
 interface MemberInfoRepository: JpaRepository<MemberInfoEntity, UUID> {
     fun existsByEmail(email: String): Boolean
     fun findByEmail(email: String): MemberInfoEntity?
+    fun findByEmailAndRefreshToken(email: String, refreshToken: String): MemberInfoEntity?
 }

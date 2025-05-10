@@ -25,6 +25,9 @@ data class MemberInfoEntity(
     @Column(name = "lastlogin_at")
     var lastloginAt: LocalDateTime? = null,
 
+    @Column(name = "refresh_token")
+    var refreshToken: String? = null,
+
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

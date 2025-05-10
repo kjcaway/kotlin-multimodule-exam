@@ -24,12 +24,12 @@ class JwtProvider(
         Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
     }
 
-    fun generateAccessToken(userId: String, claimMap: Map<String, String>): String {
+    fun generateAccessToken(email: String, claimMap: Map<String, String>): String {
         val now = Date()
         val expiryDate = Date(now.time + accessTokenExpirationMs)
 
         return Jwts.builder()
-            .subject(userId)
+            .subject(email)
             .issuedAt(now)
             .expiration(expiryDate)
             .claim("id", claimMap["id"])

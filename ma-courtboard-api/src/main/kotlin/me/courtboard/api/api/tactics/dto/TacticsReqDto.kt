@@ -3,12 +3,15 @@ package me.courtboard.api.api.tactics.dto
 import jakarta.validation.constraints.*
 import me.courtboard.api.api.tactics.entity.TacticsEntity
 import me.multimoduleexam.util.GeneratorUtil
+import me.multimoduleexam.validator.XssChecker
 
 data class TacticsReqDto(
     @field:NotBlank(message = "Title is required")
     @field:Size(min = 4, max = 100, message = "Title must be between 4 and 100 characters")
+    @field:XssChecker(message = "Title contains invalid characters")
     val title: String,
     @field:Size(max = 1000, message = "Description must not exceed 1000 characters")
+    @field:XssChecker(message = "Description contains invalid characters")
     val description: String?,
     @field:NotNull(message = "Formations are required")
     val formations: Map<String, Formation>,
