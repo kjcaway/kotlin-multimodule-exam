@@ -6,6 +6,18 @@ spring:
   config:
     activate:
       on-profile: dev
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "xxxx"
+    password: "xxxx"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: username
@@ -31,5 +43,5 @@ app:
 
 jwt:
   secret: secret-key
-  access-token-expiration: 86400    # 24 hours
-  refresh-token-expiration: 604800  # # 7 days
+  access-token-expiration: 300000
+  refresh-token-expiration: 600000
