@@ -22,4 +22,16 @@ class TacticsController(
         val result = tacticsService.getTactic(id)
         return ApiResult.ok(result)
     }
+
+    @PutMapping("/api/tactics/{id}")
+    fun putTactics(@PathVariable id: String, @Valid @RequestBody dto: TacticsReqDto): ApiResult<*> {
+        val result = tacticsService.updateTactic(id, dto)
+        return ApiResult.ok(result)
+    }
+
+    @DeleteMapping("/api/tactics/{id}")
+    fun deleteTactics(@PathVariable id: String): ApiResult<*> {
+        tacticsService.deleteTactic(id)
+        return ApiResult.ok()
+    }
 }

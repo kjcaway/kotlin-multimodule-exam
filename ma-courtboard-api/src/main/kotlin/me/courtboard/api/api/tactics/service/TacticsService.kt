@@ -18,15 +18,9 @@ class TacticsService(
 ) {
 
     fun createTactic(dto: TacticsReqDto): Map<String, Any> {
+        checkDtoDetail(dto)
+
         val createdBy = CourtboardContext.getContext().memberId
-        if (dto.hasAllSameBallPosition()) {
-            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals")
-        }
-
-        if (dto.hasAllSamePlayerPosition()) {
-            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each player formations cannot be equals")
-        }
-
         val tacticsEntity = dto.toEntity()
         tacticsEntity.states = JsonUtil.convertToJsonStr(
             mapOf(
@@ -58,5 +52,61 @@ class TacticsService(
         val entityList = tacticsRepository.findAllByCreatedIdOrderByCreatedAtDesc(memberId)
 
         return entityList.map { it.toTacticsListResDto() }
+    }
+
+    fun updateTactic(id: String, dto: TacticsReqDto): Map<String, Any> {
+        checkOwner(id)
+        checkDtoDetail(dto)
+
+        val entity = tacticsRepository.findById(id)
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
+
+        entity.name = dto.title
+        entity.description = dto.description
+        entity.states = JsonUtil.convertToJsonStr(
+            mapOf(
+                "formations" to dto.formations,
+                "playerInfo" to dto.playerInfo
+            )
+        )
+
+        val updatedEntity = tacticsRepository.save(entity)
+
+        return mapOf(
+            "id" to updatedEntity.id,
+        )
+    }
+
+    fun deleteTactic(id: String) {
+        checkOwner(id)
+
+        val entity = tacticsRepository.findById(id)
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
+
+        tacticsRepository.delete(entity)
+    }
+
+    fun checkOwner(id: String) {
+        val memberId = CourtboardContext.getContext().memberId
+        val entity = tacticsRepository.findById(id)
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
+
+        if(entity.createdId == "UNKNOWN") {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "this tactic is not created by you")
+        }
+
+        if (entity.createdId != memberId) {
+            throw CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource")
+        }
+    }
+
+    fun checkDtoDetail(dto: TacticsReqDto) {
+        if (dto.hasAllSameBallPosition()) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals")
+        }
+
+        if (dto.hasAllSamePlayerPosition()) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each player formations cannot be equals")
+        }
     }
 }
