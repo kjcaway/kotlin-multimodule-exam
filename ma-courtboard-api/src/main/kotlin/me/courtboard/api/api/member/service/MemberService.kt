@@ -44,12 +44,12 @@ class MemberService(
     @Transactional
     fun getToken(dto: MemberLoginReqDto): Map<String, String> {
         val memberInfo = memberInfoRepository.findByEmail(dto.email)
-            ?: throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
+            ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
         val member = memberRepository.findById(memberInfo.id)
-            ?: throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
+            ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
 
         if (!PasswordUtil.checkPassword(dto.password, member.get().passwd)) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
         }
 
         val accessToken = jwtProvider.generateAccessToken( dto.email, mapOf(
@@ -75,13 +75,13 @@ class MemberService(
             val claims = jwtProvider.getAllClaimsFromToken(dto.refreshToken)
 
             if (!jwtProvider.isRefreshToken(dto.refreshToken)) {
-                throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid refresh token")
+                throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid refresh token")
             }
 
             val email = claims.subject
 
             val memberInfo = memberInfoRepository.findByEmailAndRefreshToken(email, dto.refreshToken)
-                ?: throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid email or refresh token")
+                ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or refresh token")
 
             val accessToken = jwtProvider.generateAccessToken(
                 email, mapOf(
@@ -102,7 +102,7 @@ class MemberService(
                 "refresh_token" to refreshToken
             )
         } catch (e: Exception) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid refresh token", e)
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid refresh token", e)
         }
     }
 

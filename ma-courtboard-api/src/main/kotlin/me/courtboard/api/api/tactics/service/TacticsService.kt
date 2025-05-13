@@ -46,7 +46,7 @@ class TacticsService(
 
     fun getMyTactics(): List<TacticsListResDto> {
         if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED)
+            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
         }
         val memberId = CourtboardContext.getContext().memberId
         val entityList = tacticsRepository.findAllByCreatedIdOrderByCreatedAtDesc(memberId)

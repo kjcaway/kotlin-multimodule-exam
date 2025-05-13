@@ -24,25 +24,29 @@ CREATE TABLE tbl_memberinfo
 
 CREATE TABLE tbl_members
 (
-    id     uuid NOT NULL PRIMARY KEY,
-    passwd text
+    id     UUID NOT NULL PRIMARY KEY,
+    passwd TEXT
 );
 
-create unique index uidx_tbl_memberinfo_email on tbl_memberinfo (email);
+CREATE UNIQUE INDEX uidx_tbl_memberinfo_email ON tbl_memberinfo (email);
 
-create table tbl_casbin_rule
+CREATE SEQUENCE public.casbin_sequence;
+
+ALTER SEQUENCE public.casbin_sequence OWNER TO postgres;
+
+
+CREATE TABLE public.tbl_casbin_rule
 (
-    id    integer default nextval('casbin_sequence'::regclass) not null
-        primary key,
-    ptype varchar(100)                                         not null,
-    v0    varchar(100),
-    v1    varchar(100),
-    v2    varchar(100),
-    v3    varchar(100),
-    v4    varchar(100),
-    v5    varchar(100)
+    id    INTEGER DEFAULT nextval('casbin_sequence'::regclass) NOT NULL
+        PRIMARY KEY,
+    ptype VARCHAR(100)                                         NOT NULL,
+    v0    VARCHAR(100),
+    v1    VARCHAR(100),
+    v2    VARCHAR(100),
+    v3    VARCHAR(100),
+    v4    VARCHAR(100),
+    v5    VARCHAR(100)
 );
 
-alter table tbl_casbin_rule
-    owner to postgres;
-
+ALTER TABLE public.tbl_casbin_rule
+    OWNER TO postgres;

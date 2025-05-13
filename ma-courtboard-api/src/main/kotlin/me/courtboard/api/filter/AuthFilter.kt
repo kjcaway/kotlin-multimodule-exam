@@ -12,6 +12,7 @@ import me.courtboard.api.global.dto.ApiResult
 import me.multimoduleexam.util.JsonUtil
 import org.casbin.jcasbin.main.Enforcer
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -23,7 +24,9 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Order(1)
 class AuthFilter(
     private val jwtProvider: JwtProvider,
-    private val enforcer: Enforcer
+    private val enforcer: Enforcer,
+    @Value("\${app.allowed-origin}")
+    val allowedOrigin: String,
 ) : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(AuthFilter::class.java)
 
@@ -44,7 +47,7 @@ class AuthFilter(
         } catch (e: ExpiredJwtException) {
             logger.error(e.localizedMessage, e)
 
-            response.setHeader("Access-Control-Allow-Origin", "*")
+            response.setHeader("Access-Control-Allow-Origin", allowedOrigin)
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
             response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept")
             response.setHeader("Access-Control-Max-Age", "3600")

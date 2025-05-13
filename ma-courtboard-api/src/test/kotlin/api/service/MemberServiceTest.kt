@@ -6,6 +6,7 @@ import me.courtboard.api.api.member.service.MemberService
 import me.courtboard.api.component.CustomMailSender
 import me.courtboard.api.component.JwtProvider
 import me.multimoduleexam.cache.LocalStorage
+import org.casbin.jcasbin.main.Enforcer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -29,13 +30,15 @@ class MemberServiceTest(
     @Mock
     val memberInfoRepository: MemberInfoRepository,
     @Mock
-    val jwtProvider: JwtProvider
+    val jwtProvider: JwtProvider,
+    @Mock
+    val enforcer: Enforcer
 ) {
     private lateinit var memberService: MemberService
 
     @BeforeAll
     fun setup() {
-        memberService = MemberService(customMailSender, localStorage, memberRepository, memberInfoRepository, jwtProvider)
+        memberService = MemberService(customMailSender, localStorage, memberRepository, memberInfoRepository, jwtProvider, enforcer, "prod")
     }
 
     @Test
