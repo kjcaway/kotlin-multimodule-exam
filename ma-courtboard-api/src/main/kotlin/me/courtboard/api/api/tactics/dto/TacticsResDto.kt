@@ -2,12 +2,15 @@ package me.courtboard.api.api.tactics.dto
 
 import me.courtboard.api.api.tactics.entity.TacticsEntity
 import me.multimoduleexam.util.JsonUtil
+import java.time.LocalDateTime
 
 data class TacticsResDto(
     val id: String,
     val name: String,
     val description: String?,
-    val states: States
+    val states: States,
+    val createdAt: LocalDateTime,
+    var createdName: String? = null,
 ) {
     data class States(
         val formations: Map<String, Formation>,
@@ -42,8 +45,13 @@ data class TacticsResDto(
                 id = this.id,
                 name = this.name,
                 description = this.description,
-                states = JsonUtil.convertToObject(this.states!!, States::class.java)
+                states = JsonUtil.convertToObject(this.states!!, States::class.java),
+                createdAt = this.createdAt,
             )
         }
+    }
+
+    fun updateCreatedName(name: String?) {
+        this.createdName = name
     }
 }

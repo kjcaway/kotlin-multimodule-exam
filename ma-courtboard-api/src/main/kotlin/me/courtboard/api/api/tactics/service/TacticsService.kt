@@ -1,5 +1,6 @@
 package me.courtboard.api.api.tactics.service
 
+import me.courtboard.api.api.member.repository.MemberInfoRepository
 import me.courtboard.api.api.tactics.dto.TacticsListResDto
 import me.courtboard.api.api.tactics.dto.TacticsListResDto.Companion.toTacticsListResDto
 import me.courtboard.api.api.tactics.dto.TacticsReqDto
@@ -11,10 +12,13 @@ import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.JsonUtil
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class TacticsService(
-    private val tacticsRepository: TacticsRepository
+    private val tacticsRepository: TacticsRepository,
+    private val memberInfoRepository: MemberInfoRepository
 ) {
 
     fun createTactic(dto: TacticsReqDto): Map<String, Any> {
@@ -41,7 +45,14 @@ class TacticsService(
         val entity = tacticsRepository.findById(id)
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
-        return entity.toTacticsResDto()
+        val result = entity.toTacticsResDto()
+        if (entity.createdId != "UNKNOWN") {
+            val memberInfo = memberInfoRepository.findById(UUID.fromString(entity.createdId))
+                .getOrElse { null }
+            result.updateCreatedName(memberInfo?.name)
+        }
+
+        return result
     }
 
     fun getMyTactics(): List<TacticsListResDto> {
