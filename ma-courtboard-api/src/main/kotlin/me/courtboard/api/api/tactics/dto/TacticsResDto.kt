@@ -9,6 +9,7 @@ data class TacticsResDto(
     val name: String,
     val description: String?,
     val states: States,
+    val isPublic: Boolean,
     val createdAt: LocalDateTime,
     var createdName: String? = null,
 ) {
@@ -47,6 +48,7 @@ data class TacticsResDto(
                 description = this.description,
                 states = JsonUtil.convertToObject(this.states!!, States::class.java),
                 createdAt = this.createdAt,
+                isPublic = this.isPublic,
             )
         }
     }

@@ -17,6 +17,15 @@ class TacticsController(
         return ApiResult.ok(result)
     }
 
+    @GetMapping("/api/tactics")
+    fun getTacticsList(
+        @RequestParam(required = false, defaultValue = "0") start: Int,
+        @RequestParam(required = false, defaultValue = "10") limit: Int
+    ): ApiResult<*> {
+        val result = tacticsService.getTactics(start, limit)
+        return ApiResult.ok(result)
+    }
+
     @GetMapping("/api/tactics/{id}")
     fun getTactics(@PathVariable id: String): ApiResult<*> {
         val result = tacticsService.getTactic(id)

@@ -10,8 +10,10 @@ import me.courtboard.api.api.tactics.repository.TacticsRepository
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.JsonUtil
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import java.sql.Timestamp
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 
@@ -39,6 +41,29 @@ class TacticsService(
         return mapOf(
             "id" to entity.id,
         )
+    }
+
+    fun getTactics(start: Int, limit: Int): List<TacticsListResDto> {
+        val pageable = PageRequest.of(start, limit)
+        val resList = tacticsRepository.findAllByPublic(pageable)
+        val result = resList.content
+
+        return result.map { row ->
+            val id = row[0] as String
+            val name = row[1] as String
+            val description = row[2] as String?
+            val createdAt = row[3] as Timestamp
+            val createdName = row[4] as String?
+
+            TacticsListResDto(
+                id = id,
+                name = name,
+                description = description,
+                isPublic = true, // always true for public tactics
+                createdAt = createdAt.toLocalDateTime(),
+                createdName = createdName
+            )
+        }
     }
 
     fun getTactic(id: String): TacticsResDto {
@@ -80,6 +105,7 @@ class TacticsService(
                 "playerInfo" to dto.playerInfo
             )
         )
+        entity.isPublic = dto.isPublic
 
         val updatedEntity = tacticsRepository.save(entity)
 

@@ -7,7 +7,9 @@ data class TacticsListResDto(
     val id: String,
     val name: String,
     val description: String?,
-    val createdAt: LocalDateTime
+    val isPublic: Boolean,
+    val createdAt: LocalDateTime,
+    val createdName: String? = null,
 ) {
 
     companion object {
@@ -16,7 +18,8 @@ data class TacticsListResDto(
                 id = this.id,
                 name = this.name,
                 description = this.description,
-                createdAt = this.createdAt
+                isPublic = this.isPublic,
+                createdAt = this.createdAt,
             )
         }
     }

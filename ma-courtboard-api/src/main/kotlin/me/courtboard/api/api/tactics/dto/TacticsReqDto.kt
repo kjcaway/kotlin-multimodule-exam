@@ -16,7 +16,8 @@ data class TacticsReqDto(
     @field:NotNull(message = "Formations are required")
     val formations: Map<String, Formation>,
     @field:NotNull(message = "PlayerInfo are required")
-    val playerInfo: List<PlayerInfo>
+    val playerInfo: List<PlayerInfo>,
+    val isPublic: Boolean = false,
 ) {
     data class Formation(
         @field:NotEmpty(message = "Players list cannot be empty")
@@ -51,6 +52,7 @@ data class TacticsReqDto(
             id = GeneratorUtil.generateUUIDWithoutDashes(),
             name = this.title,
             description = this.description,
+            isPublic = this.isPublic,
         )
     }
 

@@ -4,6 +4,7 @@ CREATE TABLE tbl_tactics
     name        VARCHAR(100) NOT NULL,
     description VARCHAR(1024),
     states      TEXT,
+    is_public   BOOLEAN   DEFAULT FALSE,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_id  VARCHAR(100) NOT NULL,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -50,3 +51,5 @@ CREATE TABLE public.tbl_casbin_rule
 
 ALTER TABLE public.tbl_casbin_rule
     OWNER TO postgres;
+
+
