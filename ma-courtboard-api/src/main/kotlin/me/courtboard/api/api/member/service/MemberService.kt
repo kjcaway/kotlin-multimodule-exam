@@ -1,10 +1,7 @@
 package me.courtboard.api.api.member.service
 
-import me.courtboard.api.api.member.dto.MemberInfoResDto
+import me.courtboard.api.api.member.dto.*
 import me.courtboard.api.api.member.dto.MemberInfoResDto.Companion.toMemberInfoResDto
-import me.courtboard.api.api.member.dto.MemberLoginReqDto
-import me.courtboard.api.api.member.dto.MemberReqDto
-import me.courtboard.api.api.member.dto.RefreshTokenReqDto
 import me.courtboard.api.api.member.entity.MemberEntity
 import me.courtboard.api.api.member.repository.MemberInfoRepository
 import me.courtboard.api.api.member.repository.MemberRepository
@@ -178,5 +175,53 @@ class MemberService(
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
             ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
         return memberInfo.get().toMemberInfoResDto()
+    }
+
+    fun changeName(dto: ChangeNameReqDto) {
+        if (!CourtboardContext.isLogin()) {
+            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
+        }
+        val memberId = CourtboardContext.getContext().memberId
+        val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
+            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+
+        if (dto.name.isBlank()) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Name cannot be empty")
+        }
+
+        memberInfo.get().name = dto.name
+        memberInfoRepository.save(memberInfo.get())
+    }
+
+    @Transactional
+    fun changePassword(dto: ChangePasswordReqDto) {
+        if (!CourtboardContext.isLogin()) {
+            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
+        }
+        val memberId = CourtboardContext.getContext().memberId
+        val member = memberRepository.findById(UUID.fromString(memberId))
+            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+
+        if (!PasswordUtil.checkPassword(dto.currentPassword, member.get().passwd)) {
+            throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
+        }
+
+        member.get().passwd = PasswordUtil.hashPassword(dto.newPassword)
+        memberRepository.save(member.get())
+    }
+
+    @Transactional
+    fun deleteMember() {
+        if (!CourtboardContext.isLogin()) {
+            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
+        }
+        val memberId = CourtboardContext.getContext().memberId
+        val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
+            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+
+        memberInfoRepository.delete(memberInfo.get())
+        memberRepository.deleteById(UUID.fromString(memberId))
+
+        enforcer.deleteUser(memberId)
     }
 }

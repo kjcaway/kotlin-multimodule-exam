@@ -42,6 +42,4 @@ class MemberController(
         val check = memberService.checkVerificationCode(dto.email, dto.code ?: "")
         return ApiResult.ok(check)
     }
-
-
 }

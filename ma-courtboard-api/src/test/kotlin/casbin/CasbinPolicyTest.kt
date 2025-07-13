@@ -78,4 +78,26 @@ class CasbinPolicyTest() {
         Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
         Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
     }
+
+    @Test
+    fun `test_delete_user`() {
+        init()
+
+        enforcer.addNamedGroupingPolicy("g", "1", "admin", "courtboard")
+        enforcer.addNamedGroupingPolicy("g", "2", "user", "courtboard")
+
+        enforcer.isAutoNotifyDispatcher = true
+        println("[[p]]")
+        enforcer.policy.forEach { println(it) }
+        println("[[g]]")
+        enforcer.groupingPolicy.forEach { println(it) }
+        println("[[role]]")
+        enforcer.roleManager.printRoles()
+
+        println("----------------")
+        println("------TEST------")
+        println("----------------")
+        enforcer.deleteUser("1")
+        Assertions.assertFalse(enforcer.enforce("1", "courtboard", "/api/my/account", "delete"))
+    }
 }
