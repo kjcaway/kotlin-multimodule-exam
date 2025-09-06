@@ -19,9 +19,11 @@ spring:
     password: root
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 3
-      max-lifetime: 30000
+      maximum-pool-size: 10
       connection-timeout: 30000
+      minimum-idle: 10
+      leak-detection-threshold: 2000
+      max-lifetime: 115000 # 115 seconds, less than default 120 seconds of pgbouncer
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect

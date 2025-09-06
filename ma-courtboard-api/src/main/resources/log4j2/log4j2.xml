@@ -13,7 +13,7 @@
             <PatternLayout pattern="${consoleLayout}"/>
         </Console>
         <!--ConsoleAppender, RollingFileAppneder -->
-        <RandomAccessFile name="file"
+        <RollingRandomAccessFile name="file"
                           fileName="/logs/${appName}/app.log"
                           filePattern="/logs/${appName}/app.%d{yyyy-MM-dd-hh}.log"
                           immediateFlush="false" append="false">
@@ -26,7 +26,7 @@
                     <IfLastModified age="10d"/>
                 </Delete>
             </DefaultRolloverStrategy>
-        </RandomAccessFile>
+        </RollingRandomAccessFile>
     </Appenders>
 
     <!--TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
