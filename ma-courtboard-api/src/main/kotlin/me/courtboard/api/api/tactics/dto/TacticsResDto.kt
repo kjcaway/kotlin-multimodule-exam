@@ -12,6 +12,7 @@ data class TacticsResDto(
     val isPublic: Boolean,
     val createdAt: LocalDateTime,
     var createdName: String? = null,
+    var createdId: String? = null
 ) {
     data class States(
         val formations: Map<String, Formation>,
@@ -38,6 +39,7 @@ data class TacticsResDto(
         val id: Long,
         val name: String,
         val color: String,
+        val showGhost: Boolean? = false,
     )
 
     companion object {
@@ -55,5 +57,9 @@ data class TacticsResDto(
 
     fun updateCreatedName(name: String?) {
         this.createdName = name
+    }
+
+    fun updateCreatedId(id: String?) {
+        this.createdId = id
     }
 }

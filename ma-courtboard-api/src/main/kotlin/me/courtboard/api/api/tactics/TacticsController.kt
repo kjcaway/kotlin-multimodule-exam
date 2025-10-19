@@ -43,4 +43,10 @@ class TacticsController(
         tacticsService.deleteTactic(id)
         return ApiResult.ok()
     }
+
+    @GetMapping("/api/tactics-templates")
+    fun getTacticsTemplates(): ApiResult<*> {
+        val result = tacticsService.getTacticTemplates()
+        return ApiResult.ok(result)
+    }
 }

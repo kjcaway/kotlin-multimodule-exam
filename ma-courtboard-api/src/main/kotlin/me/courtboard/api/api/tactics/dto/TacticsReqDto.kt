@@ -33,6 +33,7 @@ data class TacticsReqDto(
         val color: String,
         @field:NotBlank(message = "Name is required")
         val name: String,
+        val showGhost: Boolean = false,
     )
 
     data class Player(

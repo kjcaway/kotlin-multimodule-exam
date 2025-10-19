@@ -53,3 +53,5 @@ ALTER TABLE public.tbl_casbin_rule
     OWNER TO postgres;
 
 
+alter table tbl_tactics
+    add is_template boolean default false;

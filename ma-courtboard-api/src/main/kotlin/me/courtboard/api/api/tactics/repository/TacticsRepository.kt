@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TacticsRepository: JpaRepository<TacticsEntity, String> {
     fun findAllByCreatedIdOrderByCreatedAtDesc(createdId: String): List<TacticsEntity>
+    fun findAllByIsTemplateOrderByCreatedAtDesc(isTemplate: Boolean): List<TacticsEntity>
 
     @Query("""
        SELECT t.id, t.name, t.description, t.created_at, mi.name as created_name 

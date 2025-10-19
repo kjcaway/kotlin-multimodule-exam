@@ -26,6 +26,9 @@ data class TacticsEntity(
     @Column
     var isPublic: Boolean = false,
 
+    @Column
+    var isTemplate: Boolean = false,
+
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

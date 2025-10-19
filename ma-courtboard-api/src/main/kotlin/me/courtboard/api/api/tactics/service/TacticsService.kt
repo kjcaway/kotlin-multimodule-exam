@@ -75,6 +75,7 @@ class TacticsService(
             val memberInfo = memberInfoRepository.findById(UUID.fromString(entity.createdId))
                 .getOrElse { null }
             result.updateCreatedName(memberInfo?.name)
+            result.updateCreatedId(memberInfo?.id.toString())
         }
 
         return result
@@ -123,7 +124,13 @@ class TacticsService(
         tacticsRepository.delete(entity)
     }
 
-    fun checkOwner(id: String) {
+    fun getTacticTemplates(): List<TacticsResDto> {
+        val templateEntities = tacticsRepository.findAllByIsTemplateOrderByCreatedAtDesc(true)
+
+        return templateEntities.map { it.toTacticsResDto() }
+    }
+
+    private fun checkOwner(id: String) {
         val memberId = CourtboardContext.getContext().memberId
         val entity = tacticsRepository.findById(id)
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
@@ -137,7 +144,7 @@ class TacticsService(
         }
     }
 
-    fun checkDtoDetail(dto: TacticsReqDto) {
+    private fun checkDtoDetail(dto: TacticsReqDto) {
         if (dto.hasAllSameBallPosition()) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals")
         }
