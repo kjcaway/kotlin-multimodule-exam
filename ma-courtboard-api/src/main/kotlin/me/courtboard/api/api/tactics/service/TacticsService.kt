@@ -10,7 +10,6 @@ import me.courtboard.api.api.tactics.repository.TacticsRepository
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.JsonUtil
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
@@ -44,9 +43,8 @@ class TacticsService(
     }
 
     fun getTactics(start: Int, limit: Int): List<TacticsListResDto> {
-        val pageable = PageRequest.of(start, limit)
-        val resList = tacticsRepository.findAllByPublic(pageable)
-        val result = resList.content
+        val resList = tacticsRepository.findAllByPublic(start, limit)
+        val result = resList.toList()
 
         return result.map { row ->
             val id = row[0] as String
@@ -60,6 +58,31 @@ class TacticsService(
                 name = name,
                 description = description,
                 isPublic = true, // always true for public tactics
+                createdAt = createdAt.toLocalDateTime(),
+                createdName = createdName
+            )
+        }
+    }
+
+    fun getAllTactics(start: Int, limit: Int): List<TacticsListResDto> {
+        val resList = tacticsRepository.findAllForAdmin(start, limit)
+        val result = resList.toList()
+
+        return result.map { row ->
+            val id = row[0] as String
+            val name = row[1] as String
+            val description = row[2] as String?
+            val createdAt = row[3] as Timestamp
+            val createdName = row[4] as String?
+            val isPublic = row[5] as Boolean
+            val isTemplate = row[6] as Boolean
+
+            TacticsListResDto(
+                id = id,
+                name = name,
+                description = description,
+                isPublic = isPublic,
+                isTemplate = isTemplate,
                 createdAt = createdAt.toLocalDateTime(),
                 createdName = createdName
             )

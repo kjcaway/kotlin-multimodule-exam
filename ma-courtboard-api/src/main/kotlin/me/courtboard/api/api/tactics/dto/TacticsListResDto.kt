@@ -8,6 +8,7 @@ data class TacticsListResDto(
     val name: String,
     val description: String?,
     val isPublic: Boolean,
+    val isTemplate: Boolean? = null,
     val createdAt: LocalDateTime,
     val createdName: String? = null,
 ) {
@@ -19,6 +20,7 @@ data class TacticsListResDto(
                 name = this.name,
                 description = this.description,
                 isPublic = this.isPublic,
+                isTemplate = this.isTemplate,
                 createdAt = this.createdAt,
             )
         }
