@@ -45,4 +45,11 @@ class CustomExceptionHandler : ResponseEntityExceptionHandler() {
 
         return ResponseEntity<Any>(ApiResult.error(ex.message), ex.getErrorCode())
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleCustomException(ex: Exception): ResponseEntity<*> {
+        logger.error(ex.message, ex)
+
+        return ResponseEntity<Any>(ApiResult.error(ex.message), HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }
