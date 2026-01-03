@@ -16,7 +16,7 @@
         <RollingRandomAccessFile name="file"
                           fileName="/logs/${appName}/app.log"
                           filePattern="/logs/${appName}/app.%d{yyyy-MM-dd-hh}.log"
-                          immediateFlush="false" append="false">
+                          immediateFlush="true" append="true">
             <PatternLayout pattern="${fileLayout}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="100 KB"/>
