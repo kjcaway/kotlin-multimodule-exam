@@ -1,12 +1,9 @@
 package api.service
 
 import me.courtboard.api.api.member.repository.MemberInfoRepository
-import me.courtboard.api.api.member.repository.MemberRepository
-import me.courtboard.api.api.member.service.MemberService
+import me.courtboard.api.api.member.service.MemberMailService
 import me.courtboard.api.component.CustomMailSender
-import me.courtboard.api.component.JwtProvider
 import me.multimoduleexam.cache.LocalStorage
-import org.casbin.jcasbin.main.Enforcer
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -26,25 +23,19 @@ class MemberServiceTest(
     @Mock
     val localStorage: LocalStorage<String, String>,
     @Mock
-    val memberRepository: MemberRepository,
-    @Mock
     val memberInfoRepository: MemberInfoRepository,
-    @Mock
-    val jwtProvider: JwtProvider,
-    @Mock
-    val enforcer: Enforcer
 ) {
-    private lateinit var memberService: MemberService
+    private lateinit var memberMailService: MemberMailService
 
     @BeforeAll
     fun setup() {
-        memberService = MemberService(customMailSender, localStorage, memberRepository, memberInfoRepository, jwtProvider, enforcer, "prod")
+        memberMailService = MemberMailService(customMailSender, localStorage, memberInfoRepository, "prod")
     }
 
     @Test
     fun `send verifiy code mail test`() {
         val to = "abc@gmail.com"
-        memberService.sendVerificationCodeToEmail(to)
+        memberMailService.sendVerificationCodeToEmail(to)
 
         val stringCaptor = argumentCaptor<String>()
         val mapCaptor = argumentCaptor<Map<String, String>>()
