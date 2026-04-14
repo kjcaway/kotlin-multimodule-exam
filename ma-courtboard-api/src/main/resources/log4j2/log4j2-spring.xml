@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" monitorInterval="30">
+    <!--Common -->
+    <Properties>
+        <Property name="appName">ma-courtboard-api</Property>
+        <Property name="consoleLayout">%d{yyyy-MM-dd HH:mm:ss.SSS}{GMT+9} %5p %c{1}:%L - %m%n</Property>
+        <Property name="fileLayout">%d{yyyy-MM-dd HH:mm:ss.SSS}{GMT+9} %5p %c{1}:%L - %m%n</Property>
+    </Properties>
+
+    <!-- Appender -->
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${consoleLayout}"/>
+        </Console>
+        <!-- 파일 롤링: 일별 + 10MB 크기 기준, 비동기 플러시 (dev 프로파일 제외) -->
+        <SpringProfile name="!dev">
+            <RollingRandomAccessFile name="file"
+                              fileName="/logs/${appName}/app.log"
+                              filePattern="/logs/${appName}/app.%d{yyyy-MM-dd}.%i.log"
+                              immediateFlush="false" append="true">
+                <PatternLayout pattern="${fileLayout}"/>
+                <Policies>
+                    <TimeBasedTriggeringPolicy interval="1"/>
+                    <SizeBasedTriggeringPolicy size="10 MB"/>
+                </Policies>
+                <DefaultRolloverStrategy max="7">
+                    <Delete basePath="/logs" maxDepth="3">
+                        <IfLastModified age="10d"/>
+                    </Delete>
+                </DefaultRolloverStrategy>
+            </RollingRandomAccessFile>
+            <Async name="async-file">
+                <AppenderRef ref="file"/>
+            </Async>
+        </SpringProfile>
+    </Appenders>
+
+    <!--TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
+    <Loggers>
+        <!-- root logger-->
+        <Root level="info">
+            <AppenderRef ref="console"/>
+            <SpringProfile name="!dev">
+                <AppenderRef ref="async-file"/>
+            </SpringProfile>
+        </Root>
+
+        <!-- springframework logging -->
+        <Logger name="org.springframework" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+            <SpringProfile name="!dev">
+                <AppenderRef ref="async-file"/>
+            </SpringProfile>
+        </Logger>
+
+        <Logger name="com.zaxxer.hikari" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.zaxxer.hikariConfig" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="me.courtboard.api" level="info" additivity="false">
+            <AppenderRef ref="console"/>
+            <SpringProfile name="!dev">
+                <AppenderRef ref="async-file"/>
+            </SpringProfile>
+        </Logger>
+    </Loggers>
+</Configuration>

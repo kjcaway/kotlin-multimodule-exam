@@ -81,6 +81,35 @@ src/main/kotlin/me/courtboard/api/
 - `application-prod.yml` — 운영 환경
 - Casbin 모델/정책: `src/main/resources/casbin/`
 
+## Production Tuning (application-prod.yml)
+
+서버 스펙이 **1 vCPU / 1.5GB RAM**이므로 아래 값을 반영해둔다.
+
+### Tomcat Thread Pool
+
+```yaml
+server:
+  tomcat:
+    threads:
+      max: 20        # 기본 200 → 1 CPU 기준 컨텍스트 스위칭 최소화
+      min-spare: 5   # 기본 10
+    accept-count: 30 # 요청 큐 크기 (기본 100)
+    connection-timeout: 10000
+```
+
+### HikariCP Connection Pool
+
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 5   # 기본 10 → Supabase PgBouncer가 외부 풀링하므로 앱 단 5개 충분
+      minimum-idle: 2        # 기본 10 → idle 커넥션 비용 절감
+      connection-timeout: 30000
+      max-lifetime: 115000   # PgBouncer 기본값(120s)보다 짧게 유지
+      leak-detection-threshold: 2000
+```
+
 ## Key Conventions
 
 - **DTO 네이밍**: `*ReqDto` (요청), `*ResDto` (응답)
