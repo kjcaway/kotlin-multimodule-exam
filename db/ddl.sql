@@ -13,14 +13,16 @@ CREATE TABLE tbl_tactics
 
 CREATE TABLE tbl_memberinfo
 (
-    id            uuid NOT NULL PRIMARY KEY,
-    email         VARCHAR(64),
-    name          VARCHAR(64),
-    avatar_url    TEXT,
-    refresh_token VARCHAR(256) DEFAULT NULL,
-    lastlogin_at  TIMESTAMP    DEFAULT NULL,
-    created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    id               uuid NOT NULL PRIMARY KEY,
+    email            VARCHAR(64),
+    name             VARCHAR(64),
+    avatar_url       TEXT,
+    refresh_token    VARCHAR(256) DEFAULT NULL,
+    lastlogin_at     TIMESTAMP    DEFAULT NULL,
+    created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    provider         VARCHAR(20),
+    provider_user_id VARCHAR(255)
 );
 
 CREATE TABLE tbl_members

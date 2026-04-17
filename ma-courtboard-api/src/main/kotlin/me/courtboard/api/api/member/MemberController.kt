@@ -2,6 +2,7 @@ package me.courtboard.api.api.member
 
 import jakarta.validation.Valid
 import me.courtboard.api.api.member.dto.*
+import me.courtboard.api.api.member.service.GoogleAuthService
 import me.courtboard.api.api.member.service.MemberMailService
 import me.courtboard.api.api.member.service.MemberService
 import me.courtboard.api.global.dto.ApiResult
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class MemberController(
     val memberService: MemberService,
-    val memberMailService: MemberMailService
+    val memberMailService: MemberMailService,
+    val googleAuthService: GoogleAuthService
 ) {
 
     @GetMapping("/api/member/check")
@@ -31,6 +33,12 @@ class MemberController(
     @PostMapping("/api/member/login")
     fun login(@Valid @RequestBody dto: MemberLoginReqDto): ApiResult<*> {
         val tokens = memberService.getToken(dto)
+        return ApiResult.ok(tokens)
+    }
+
+    @PostMapping("/api/member/google-login")
+    fun googleLogin(@Valid @RequestBody dto: GoogleLoginReqDto): ApiResult<*> {
+        val tokens = googleAuthService.loginWithGoogle(dto.credential)
         return ApiResult.ok(tokens)
     }
 

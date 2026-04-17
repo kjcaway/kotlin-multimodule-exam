@@ -34,6 +34,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
+    // google id token verifier
+    implementation("com.google.api-client:google-api-client:2.7.0")
+
     // password encoder
     implementation("org.mindrot:jbcrypt:0.4")
 

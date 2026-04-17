@@ -49,3 +49,7 @@ casbin:
   model: classpath:casbin/model.conf
   useDefaultModelIfModelNotSetting: true
   enableWatcher: false
+
+google:
+  oauth:
+    client-id: "must be set in application-dev.yml"

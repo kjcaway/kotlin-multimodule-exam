@@ -22,6 +22,12 @@ data class MemberInfoEntity(
     @Column(name = "avatar_url")
     var avatarUrl: String? = null,
 
+    @Column
+    var provider: String? = null,
+
+    @Column(name = "provider_user_id")
+    var providerUserId: String? = null,
+
     @Column(name = "lastlogin_at")
     var lastloginAt: LocalDateTime? = null,
 
