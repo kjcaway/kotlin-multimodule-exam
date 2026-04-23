@@ -11,6 +11,7 @@ data class TacticsListResDto(
     val isTemplate: Boolean? = null,
     val createdAt: LocalDateTime,
     val createdName: String? = null,
+    val isHalfCourt: Boolean = false,
 ) {
 
     companion object {
@@ -22,6 +23,7 @@ data class TacticsListResDto(
                 isPublic = this.isPublic,
                 isTemplate = this.isTemplate,
                 createdAt = this.createdAt,
+                isHalfCourt = this.isHalfCourt,
             )
         }
     }
