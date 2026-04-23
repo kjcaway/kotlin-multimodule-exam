@@ -10,6 +10,7 @@ data class TacticsResDto(
     val description: String?,
     val states: States,
     val isPublic: Boolean,
+    val isHalfCourt: Boolean,
     val createdAt: LocalDateTime,
     var createdName: String? = null,
     var createdId: String? = null
@@ -51,6 +52,7 @@ data class TacticsResDto(
                 states = JsonUtil.convertToObject(this.states!!, States::class.java),
                 createdAt = this.createdAt,
                 isPublic = this.isPublic,
+                isHalfCourt = this.isHalfCourt,
             )
         }
     }

@@ -18,6 +18,7 @@ data class TacticsReqDto(
     @field:NotNull(message = "PlayerInfo are required")
     val playerInfo: List<PlayerInfo>,
     val isPublic: Boolean = false,
+    val isHalfCourt: Boolean = false,
 ) {
     data class Formation(
         @field:NotEmpty(message = "Players list cannot be empty")
@@ -54,6 +55,7 @@ data class TacticsReqDto(
             name = this.title,
             description = this.description,
             isPublic = this.isPublic,
+            isHalfCourt = this.isHalfCourt,
         )
     }
 

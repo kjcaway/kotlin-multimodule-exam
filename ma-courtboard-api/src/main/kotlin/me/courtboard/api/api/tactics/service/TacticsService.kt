@@ -130,6 +130,7 @@ class TacticsService(
             )
         )
         entity.isPublic = dto.isPublic
+        entity.isHalfCourt = dto.isHalfCourt
 
         val updatedEntity = tacticsRepository.save(entity)
 

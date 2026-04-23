@@ -8,7 +8,9 @@ CREATE TABLE tbl_tactics
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_id  VARCHAR(100) NOT NULL,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_id  VARCHAR(100)
+    updated_id  VARCHAR(100),
+    is_template BOOLEAN   DEFAULT FALSE,
+    is_half_court BOOLEAN   DEFAULT FALSE
 );
 
 CREATE TABLE tbl_memberinfo

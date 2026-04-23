@@ -29,6 +29,9 @@ data class TacticsEntity(
     @Column
     var isTemplate: Boolean = false,
 
+    @Column
+    var isHalfCourt: Boolean = false,
+
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
