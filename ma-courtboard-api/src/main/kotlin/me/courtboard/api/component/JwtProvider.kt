@@ -35,6 +35,7 @@ class JwtProvider(
             .claim("id", claimMap["id"])
             .claim("name", claimMap["name"])
             .claim("email", claimMap["email"])
+            .claim("role", claimMap["role"])
             .signWith(secretKey)
             .compact()
     }

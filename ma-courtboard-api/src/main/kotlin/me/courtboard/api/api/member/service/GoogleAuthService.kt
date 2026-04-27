@@ -60,11 +60,13 @@ class GoogleAuthService(
             }
             ?: createGoogleMember(email, name, picture, sub)
 
+        val role = enforcer.getRolesForUserInDomain(memberInfo.id.toString(), Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
         val accessToken = jwtProvider.generateAccessToken(
             email, mapOf(
                 "id" to memberInfo.id.toString(),
                 "name" to memberInfo.name!!,
-                "email" to memberInfo.email!!
+                "email" to memberInfo.email!!,
+                "role" to role
             )
         )
         val refreshToken = jwtProvider.generateRefreshToken(email)

@@ -1,6 +1,7 @@
 package me.courtboard.api.api.member.service
 
 import me.courtboard.api.api.member.dto.*
+import me.courtboard.api.api.member.dto.MemberAdminListResDto.Companion.toMemberAdminListResDto
 import me.courtboard.api.api.member.dto.MemberInfoResDto.Companion.toMemberInfoResDto
 import me.courtboard.api.api.member.entity.MemberEntity
 import me.courtboard.api.api.member.repository.MemberInfoRepository
@@ -41,7 +42,8 @@ class MemberService(
         val accessToken = jwtProvider.generateAccessToken( dto.email, mapOf(
             "id" to memberInfo.id.toString(),
             "name" to memberInfo.name!!,
-            "email" to memberInfo.email!!
+            "email" to memberInfo.email!!,
+            "role" to getRole(memberInfo.id.toString())
         ))
         val refreshToken = jwtProvider.generateRefreshToken(dto.email)
 
@@ -55,6 +57,9 @@ class MemberService(
             "refresh_token" to refreshToken
         )
     }
+
+    private fun getRole(memberId: String): String =
+        enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
 
     fun getTokenByRefreshToken(dto: RefreshTokenReqDto): Map<String, String> {
         try {
@@ -73,7 +78,8 @@ class MemberService(
                 email, mapOf(
                     "id" to memberInfo.id.toString(),
                     "name" to memberInfo.name!!,
-                    "email" to memberInfo.email!!
+                    "email" to memberInfo.email!!,
+                    "role" to getRole(memberInfo.id.toString())
                 )
             )
             val refreshToken = jwtProvider.generateRefreshToken(email)
@@ -181,5 +187,14 @@ class MemberService(
         if (!CourtboardContext.isLogin()) {
             throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid token")
         }
+    }
+
+    fun getAllMembers(start: Int, limit: Int): List<MemberAdminListResDto> {
+        val pageable = org.springframework.data.domain.PageRequest.of(
+            start / limit.coerceAtLeast(1),
+            limit.coerceAtLeast(1),
+            org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
+        )
+        return memberInfoRepository.findAll(pageable).content.map { it.toMemberAdminListResDto() }
     }
 }

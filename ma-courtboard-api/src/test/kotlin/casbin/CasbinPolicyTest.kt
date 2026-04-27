@@ -1,103 +1,57 @@
 package casbin
 
+import me.courtboard.api.global.Constants
 import org.casbin.jcasbin.main.Enforcer
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.nio.file.Paths
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CasbinPolicyTest() {
-    private lateinit var modelPath: String
-    private lateinit var policyPath: String
+class CasbinPolicyTest {
+    private val modelPath = Paths.get("src/test/resources/casbin/model.conf").toAbsolutePath().toString()
+    private val policyPath = Paths.get("src/test/resources/casbin/policy.csv").toAbsolutePath().toString()
     private lateinit var enforcer: Enforcer
 
-    private fun init() {
-        modelPath = Paths.get("src/test/resources/casbin/model.conf").toAbsolutePath().toString()
-        policyPath = Paths.get("src/test/resources/casbin/policy.csv").toAbsolutePath().toString()
-
-        enforcer = Enforcer(modelPath, policyPath)
+    @BeforeEach
+    fun setUp() {
+        enforcer = Enforcer(modelPath, policyPath).apply {
+            isAutoNotifyDispatcher = true
+            addNamedGroupingPolicy("g", ADMIN_USER_ID, Constants.ROLE_ADMIN, Constants.COURTBOARD)
+            addNamedGroupingPolicy("g", USER_USER_ID, Constants.ROLE_USER, Constants.COURTBOARD)
+        }
     }
 
-    @Disabled
-    @Test
-    fun `test`() {
-        init()
-
-        enforcer.clearPolicy()
-        enforcer.roleManager.clear()
-
-        enforcer.addNamedPolicy("p", "admin", "courtboard", "*", "(get|post|put|delete)")
-        enforcer.addNamedPolicy("p", "user", "courtboard", "/api/tactics", "(get)")
-
-        enforcer.addNamedGroupingPolicy("g", "1", "admin", "courtboard")
-        enforcer.addNamedGroupingPolicy("g", "2", "user", "courtboard")
-
-        enforcer.isAutoNotifyDispatcher = true
-        println("[[p]]")
-        enforcer.policy.forEach { println(it) }
-        println("[[g]]")
-        enforcer.groupingPolicy.forEach { println(it) }
-        println("[[role]]")
-        enforcer.roleManager.printRoles()
-
-        println("----------------")
-        println("------TEST------")
-        println("----------------")
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/tactics", "get"))
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/tactics", "post"))
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/member", "get"))
-        Assertions.assertTrue(enforcer.enforce("2", "courtboard", "/api/tactics", "get"))
-        Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
-        Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
+    @ParameterizedTest(name = "user={0} {3} {2} -> {4}")
+    @CsvSource(
+        "1, courtboard, /api/tactics, get,    true",
+        "1, courtboard, /api/tactics, post,   true",
+        "1, courtboard, /api/member,  get,    true",
+        "2, courtboard, /api/tactics, get,    true",
+        "2, courtboard, /api/member,  get,    false",
+        "2, courtboard, /api/member,  post,   false",
+    )
+    fun `enforces policy by role and domain`(
+        sub: String,
+        dom: String,
+        obj: String,
+        act: String,
+        expected: Boolean,
+    ) {
+        assertEquals(expected, enforcer.enforce(sub, dom, obj, act))
     }
 
     @Test
-    fun `test_courtboard`() {
-        init()
+    fun `deleteUser revokes all permissions in domain`() {
+        enforcer.deleteUser(ADMIN_USER_ID)
 
-        enforcer.addNamedGroupingPolicy("g", "1", "admin", "courtboard")
-        enforcer.addNamedGroupingPolicy("g", "2", "user", "courtboard")
-
-        enforcer.isAutoNotifyDispatcher = true
-        println("[[p]]")
-        enforcer.policy.forEach { println(it) }
-        println("[[g]]")
-        enforcer.groupingPolicy.forEach { println(it) }
-        println("[[role]]")
-        enforcer.roleManager.printRoles()
-
-        println("----------------")
-        println("------TEST------")
-        println("----------------")
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/tactics", "get"))
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/tactics", "post"))
-        Assertions.assertTrue(enforcer.enforce("1", "courtboard", "/api/member", "get"))
-        Assertions.assertTrue(enforcer.enforce("2", "courtboard", "/api/tactics", "get"))
-        Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
-        Assertions.assertFalse(enforcer.enforce("2", "courtboard", "/api/member", "get"))
+        assertFalse(enforcer.enforce(ADMIN_USER_ID, Constants.COURTBOARD, "/api/my/account", "delete"))
     }
 
-    @Test
-    fun `test_delete_user`() {
-        init()
-
-        enforcer.addNamedGroupingPolicy("g", "1", "admin", "courtboard")
-        enforcer.addNamedGroupingPolicy("g", "2", "user", "courtboard")
-
-        enforcer.isAutoNotifyDispatcher = true
-        println("[[p]]")
-        enforcer.policy.forEach { println(it) }
-        println("[[g]]")
-        enforcer.groupingPolicy.forEach { println(it) }
-        println("[[role]]")
-        enforcer.roleManager.printRoles()
-
-        println("----------------")
-        println("------TEST------")
-        println("----------------")
-        enforcer.deleteUser("1")
-        Assertions.assertFalse(enforcer.enforce("1", "courtboard", "/api/my/account", "delete"))
+    companion object {
+        private const val ADMIN_USER_ID = "1"
+        private const val USER_USER_ID = "2"
     }
 }

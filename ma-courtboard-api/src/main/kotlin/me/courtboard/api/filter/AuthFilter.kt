@@ -37,7 +37,7 @@ class AuthFilter(
             if (jwt != null) {
                 val claims = jwtProvider.getAllClaimsFromToken(jwt)
                 val memberId = claims["id"] as String
-                val role = enforcer.getRolesForUser(memberId).firstOrNull() ?: Constants.ROLE_USER
+                val role = enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
                 CourtboardContext.setContext(RequestContext(memberId, role))
             } else {
                 CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
