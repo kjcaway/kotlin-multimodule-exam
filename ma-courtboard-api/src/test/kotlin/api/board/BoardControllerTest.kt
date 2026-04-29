@@ -21,8 +21,10 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -231,6 +233,122 @@ class BoardControllerTest {
             .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
 
         mockMvc.perform(get("/api/board/{id}", id))
+            .andDo(print())
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `PUT api board id - 게시물 수정 성공`() {
+        val id = "board-uuid-update"
+        val reqDto = validBoardReqDto()
+        whenever(boardService.updateBoard(eq(id), any())).thenReturn(mapOf("id" to id))
+
+        mockMvc.perform(
+            put("/api/board/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.id").value(id))
+    }
+
+    @Test
+    fun `PUT api board id - 작성자 본인이 아니면 403 반환`() {
+        val id = "board-uuid-update"
+        val reqDto = validBoardReqDto()
+        whenever(boardService.updateBoard(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource"))
+
+        mockMvc.perform(
+            put("/api/board/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `PUT api board id - 비로그인 시 401 반환`() {
+        val id = "board-uuid-update"
+        val reqDto = validBoardReqDto()
+        whenever(boardService.updateBoard(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required"))
+
+        mockMvc.perform(
+            put("/api/board/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `PUT api board id - 존재하지 않으면 404 반환`() {
+        val id = "missing-id"
+        val reqDto = validBoardReqDto()
+        whenever(boardService.updateBoard(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
+
+        mockMvc.perform(
+            put("/api/board/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `DELETE api board id - 게시물 삭제 성공`() {
+        val id = "board-uuid-delete"
+
+        mockMvc.perform(delete("/api/board/{id}", id))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+    }
+
+    @Test
+    fun `DELETE api board id - 작성자 본인이 아니면 403 반환`() {
+        val id = "board-uuid-delete"
+        org.mockito.kotlin.doThrow(
+            CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource")
+        ).whenever(boardService).deleteBoard(id)
+
+        mockMvc.perform(delete("/api/board/{id}", id))
+            .andDo(print())
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `DELETE api board id - 비로그인 시 401 반환`() {
+        val id = "board-uuid-delete"
+        org.mockito.kotlin.doThrow(
+            CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required")
+        ).whenever(boardService).deleteBoard(id)
+
+        mockMvc.perform(delete("/api/board/{id}", id))
+            .andDo(print())
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `DELETE api board id - 존재하지 않으면 404 반환`() {
+        val id = "missing-id"
+        org.mockito.kotlin.doThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
+            .whenever(boardService).deleteBoard(id)
+
+        mockMvc.perform(delete("/api/board/{id}", id))
             .andDo(print())
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.success").value(false))
