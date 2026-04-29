@@ -40,6 +40,9 @@ dependencies {
     // password encoder
     implementation("org.mindrot:jbcrypt:0.4")
 
+    // html sanitizer (xss prevention for rich text)
+    implementation("org.jsoup:jsoup:1.17.2")
+
     // casbin
     implementation("org.casbin:casbin-spring-boot-starter:1.9.0")
 

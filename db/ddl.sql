@@ -59,3 +59,15 @@ ALTER TABLE public.tbl_casbin_rule
 
 alter table tbl_tactics
     add is_template boolean default false;
+
+
+CREATE TABLE tbl_board
+(
+    id         VARCHAR(255) PRIMARY KEY,
+    title      VARCHAR(256) NOT NULL,
+    contents   TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_id VARCHAR(100) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_id VARCHAR(100)
+);
