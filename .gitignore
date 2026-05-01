@@ -44,3 +44,6 @@ logs/
 
 *.tar
 *-prod.yml
+
+### Claude ###
+.claude/

@@ -17,6 +17,7 @@
 src/main/kotlin/me/courtboard/api/
 ├── aop/                  # @CheckPerm 어노테이션 + AOP 권한 검사
 ├── api/
+│   ├── board/            # 게시판 도메인 (Entity, DTO, Repository, Service, Controller, util/BoardHtmlSanitizer)
 │   ├── member/           # 회원 도메인 (Entity, DTO, Repository, Service, Controller)
 │   ├── my/               # 내 정보 API
 │   └── tactics/          # 전술 도메인 (Entity, DTO, Repository, Service, Controller)
@@ -115,6 +116,8 @@ spring:
 - **DTO 네이밍**: `*ReqDto` (요청), `*ResDto` (응답)
 - **Controller 분리**: 일반 사용자용과 admin/manage용 Controller가 별도 파일로 분리됨 (예: `TacticsController` vs `TacticsAdminController`)
 - **전술 데이터**: `formations`, `playerInfo`를 JSON으로 DB `states` 컬럼에 저장
+- **게시판 본문 HTML**: `BoardHtmlSanitizer`(jsoup 기반)로 XSS 방지를 위한 sanitize 후 저장
+- **게시판 수정/삭제 권한**: 작성자 본인만 가능 (PUT/DELETE `/api/board/{id}`에서 author-only 체크)
 - **공통 모듈**: `module-common`의 `JsonUtil` 등 유틸을 `me.multimoduleexam.util` 패키지로 임포트
 
 ## Testing
