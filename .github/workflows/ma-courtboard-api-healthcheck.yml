@@ -1,0 +1,57 @@
+name: ma-courtboard-api healthcheck
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe /actuator/health
+        id: probe
+        run: |
+          set +e
+          BODY=$(curl -fsS --max-time 10 "${{ secrets.HEALTH_URL }}")
+          CODE=$?
+
+          STATUS=$(echo "$BODY" | jq -r '.status // "UNREACHABLE"')
+          DB=$(echo "$BODY"     | jq -r '.components.db.status // "UNKNOWN"')
+          DISK=$(echo "$BODY"   | jq -r '.components.diskSpace.status // "UNKNOWN"')
+
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "db=$DB"         >> "$GITHUB_OUTPUT"
+          echo "disk=$DISK"     >> "$GITHUB_OUTPUT"
+
+          if [ "$CODE" -ne 0 ] || [ "$STATUS" != "UP" ]; then
+            exit 1
+          fi
+
+      - name: Notify Discord on failure
+        if: failure()
+        run: |
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(jq -n \
+            --arg s    '${{ steps.probe.outputs.status }}' \
+            --arg d    '${{ steps.probe.outputs.db }}' \
+            --arg disk '${{ steps.probe.outputs.disk }}' \
+            --arg url  '${{ secrets.HEALTH_URL }}' \
+            --arg run  "$RUN_URL" \
+            '{
+               username: "courtboard-monitor",
+               embeds: [{
+                 title: ":rotating_light: ma-courtboard-api DOWN",
+                 color: 15158332,
+                 fields: [
+                   { name: "overall", value: $s,    inline: true },
+                   { name: "db",      value: $d,    inline: true },
+                   { name: "disk",    value: $disk, inline: true },
+                   { name: "endpoint", value: $url },
+                   { name: "run log",  value: $run }
+                 ]
+               }]
+             }')
+          curl -fsS -H "Content-Type: application/json" \
+               -d "$PAYLOAD" \
+               "${{ secrets.DISCORD_WEBHOOK_URL }}"

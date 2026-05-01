@@ -31,8 +31,18 @@ spring:
 
 management:
   health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
     mail:
       enabled: false
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
   endpoints:
     web:
       exposure:
@@ -45,3 +55,8 @@ jwt:
   secret: secret-key
   access-token-expiration: 300000
   refresh-token-expiration: 600000
+
+google:
+  oauth:
+    client-id: client-id
+
