@@ -2,7 +2,7 @@ name: ma-courtboard-api healthcheck
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -25,30 +25,70 @@ jobs:
           echo "disk=$DISK"     >> "$GITHUB_OUTPUT"
 
           if [ "$CODE" -ne 0 ] || [ "$STATUS" != "UP" ]; then
-            exit 1
+            echo "healthy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "healthy=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Notify Discord on failure
-        if: failure()
+      - name: Check TLS certificate expiry
+        id: cert
+        run: |
+          set +e
+          HOST=courtboard.kro.kr
+          PORT=443
+
+          END_DATE=$(echo | openssl s_client -connect ${HOST}:${PORT} -servername ${HOST} 2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null \
+            | sed 's/notAfter=//')
+
+          if [ -z "$END_DATE" ]; then
+            echo "cert_end=UNKNOWN"        >> "$GITHUB_OUTPUT"
+            echo "cert_days=UNKNOWN"       >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          END_EPOCH=$(date -d "$END_DATE" +%s)
+          NOW_EPOCH=$(date +%s)
+          DAYS_LEFT=$(( (END_EPOCH - NOW_EPOCH) / 86400 ))
+
+          echo "cert_end=$END_DATE"  >> "$GITHUB_OUTPUT"
+          echo "cert_days=$DAYS_LEFT" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Discord
         run: |
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ "${{ steps.probe.outputs.healthy }}" = "true" ]; then
+            TITLE=":white_check_mark: ma-courtboard-api UP"
+            COLOR=3066993
+          else
+            TITLE=":rotating_light: ma-courtboard-api DOWN"
+            COLOR=15158332
+          fi
+
           PAYLOAD=$(jq -n \
-            --arg s    '${{ steps.probe.outputs.status }}' \
-            --arg d    '${{ steps.probe.outputs.db }}' \
-            --arg disk '${{ steps.probe.outputs.disk }}' \
-            --arg url  '${{ secrets.HEALTH_URL }}' \
-            --arg run  "$RUN_URL" \
+            --arg title "$TITLE" \
+            --argjson color $COLOR \
+            --arg s        '${{ steps.probe.outputs.status }}' \
+            --arg d        '${{ steps.probe.outputs.db }}' \
+            --arg disk     '${{ steps.probe.outputs.disk }}' \
+            --arg url      '${{ secrets.HEALTH_URL }}' \
+            --arg certEnd  '${{ steps.cert.outputs.cert_end }}' \
+            --arg certDays '${{ steps.cert.outputs.cert_days }}' \
+            --arg run      "$RUN_URL" \
             '{
                username: "courtboard-monitor",
                embeds: [{
-                 title: ":rotating_light: ma-courtboard-api DOWN",
-                 color: 15158332,
+                 title: $title,
+                 color: $color,
                  fields: [
-                   { name: "overall", value: $s,    inline: true },
-                   { name: "db",      value: $d,    inline: true },
-                   { name: "disk",    value: $disk, inline: true },
-                   { name: "endpoint", value: $url },
-                   { name: "run log",  value: $run }
+                   { name: "overall",    value: $s,         inline: true },
+                   { name: "db",         value: $d,         inline: true },
+                   { name: "disk",       value: $disk,      inline: true },
+                   { name: "cert expiry",   value: $certEnd,  inline: true },
+                   { name: "cert days left", value: $certDays, inline: true },
+                   { name: "endpoint",   value: $url },
+                   { name: "run log",    value: $run }
                  ]
                }]
              }')
