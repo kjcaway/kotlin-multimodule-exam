@@ -20,4 +20,11 @@ class MemberAdminController(
         val result = memberService.getAllMembers(start, limit)
         return ApiResult.ok(result)
     }
+
+    @CheckPerm
+    @GetMapping("/api/admin/users/count")
+    fun getAllMembersCount(): ApiResult<*> {
+        val count = memberService.getAllMembersCount()
+        return ApiResult.ok(mapOf("count" to count))
+    }
 }

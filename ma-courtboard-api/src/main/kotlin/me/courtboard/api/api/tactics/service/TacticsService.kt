@@ -64,6 +64,10 @@ class TacticsService(
         }
     }
 
+    fun getAllTacticsCount(): Long {
+        return tacticsRepository.count()
+    }
+
     fun getAllTactics(start: Int, limit: Int): List<TacticsListResDto> {
         val resList = tacticsRepository.findAllForAdmin(start, limit)
         val result = resList.toList()
@@ -152,6 +156,19 @@ class TacticsService(
         val templateEntities = tacticsRepository.findAllByIsTemplateOrderByCreatedAtDesc(true)
 
         return templateEntities.map { it.toTacticsResDto() }
+    }
+
+    fun toggleTemplate(id: String): Map<String, Any> {
+        val entity = tacticsRepository.findById(id)
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
+
+        entity.isTemplate = !entity.isTemplate
+        val updatedEntity = tacticsRepository.save(entity)
+
+        return mapOf(
+            "id" to updatedEntity.id,
+            "isTemplate" to updatedEntity.isTemplate
+        )
     }
 
     private fun checkOwner(id: String) {

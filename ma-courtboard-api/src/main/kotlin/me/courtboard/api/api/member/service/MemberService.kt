@@ -197,4 +197,8 @@ class MemberService(
         )
         return memberInfoRepository.findAll(pageable).content.map { it.toMemberAdminListResDto() }
     }
+
+    fun getAllMembersCount(): Long {
+        return memberInfoRepository.count()
+    }
 }

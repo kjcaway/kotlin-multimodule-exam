@@ -1,9 +1,13 @@
 package me.courtboard.api.api.tactics
 
+import jakarta.validation.Valid
 import me.courtboard.api.aop.CheckPerm
+import me.courtboard.api.api.tactics.dto.TacticsTemplateToggleReqDto
 import me.courtboard.api.api.tactics.service.TacticsService
 import me.courtboard.api.global.dto.ApiResult
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
@@ -18,6 +22,20 @@ class TacticsAdminController(
         @RequestParam(required = false, defaultValue = "10") limit: Int
     ): ApiResult<*> {
         val result = tacticsService.getAllTactics(start, limit)
+        return ApiResult.ok(result)
+    }
+
+    @CheckPerm
+    @GetMapping("/api/admin/tactics/count")
+    fun getTacticsCount(): ApiResult<*> {
+        val count = tacticsService.getAllTacticsCount()
+        return ApiResult.ok(mapOf("count" to count))
+    }
+
+    @CheckPerm
+    @PutMapping("/api/admin/tactics/template")
+    fun toggleTemplate(@Valid @RequestBody dto: TacticsTemplateToggleReqDto): ApiResult<*> {
+        val result = tacticsService.toggleTemplate(dto.id)
         return ApiResult.ok(result)
     }
 }
