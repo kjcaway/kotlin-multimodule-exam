@@ -1,11 +1,10 @@
 package me.courtboard.api.api.member
 
 import me.courtboard.api.aop.CheckPerm
+import me.courtboard.api.api.member.dto.MemberGrantReqDto
 import me.courtboard.api.api.member.service.MemberService
 import me.courtboard.api.global.dto.ApiResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class MemberAdminController(
@@ -26,5 +25,12 @@ class MemberAdminController(
     fun getAllMembersCount(): ApiResult<*> {
         val count = memberService.getAllMembersCount()
         return ApiResult.ok(mapOf("count" to count))
+    }
+
+    @CheckPerm
+    @PostMapping("/api/admin/grant-role")
+    fun grantRoleForUser(@RequestBody dto: MemberGrantReqDto): ApiResult<*> {
+        memberService.grantRoleForUser(dto.email, dto.role)
+        return ApiResult.ok()
     }
 }

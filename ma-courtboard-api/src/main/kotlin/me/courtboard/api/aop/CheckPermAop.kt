@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.casbin.jcasbin.main.Enforcer
 import org.slf4j.LoggerFactory
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.context.request.RequestContextHolder
@@ -16,6 +17,7 @@ import java.util.*
 
 @Aspect
 @Component
+@Order(2)
 class CheckPermAop(
     private val enforcer: Enforcer
 ) {

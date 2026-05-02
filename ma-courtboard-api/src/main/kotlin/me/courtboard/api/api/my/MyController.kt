@@ -1,6 +1,7 @@
 package me.courtboard.api.api.my
 
 import jakarta.validation.Valid
+import me.courtboard.api.aop.CheckLogin
 import me.courtboard.api.aop.CheckPerm
 import me.courtboard.api.api.member.dto.ChangeNameReqDto
 import me.courtboard.api.api.member.dto.ChangePasswordReqDto
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class MyController(
+    private val memberService: MemberService,
     private val tacticsService: TacticsService,
-    private val memberService: MemberService
 ) {
     @CheckPerm
     @GetMapping("/api/my/tactics")
@@ -28,6 +29,7 @@ class MyController(
         return ApiResult.ok(result)
     }
 
+    @CheckLogin
     @CheckPerm
     @PutMapping("/api/my/info")
     fun changeMyInfo(@Valid @RequestBody dto: ChangeNameReqDto): ApiResult<*> {
@@ -35,6 +37,7 @@ class MyController(
         return ApiResult.ok(result)
     }
 
+    @CheckLogin
     @CheckPerm
     @PutMapping("/api/my/password")
     fun changePassword(@Valid @RequestBody dto: ChangePasswordReqDto): ApiResult<*> {
@@ -42,6 +45,7 @@ class MyController(
         return ApiResult.ok()
     }
 
+    @CheckLogin
     @CheckPerm
     @DeleteMapping("/api/my/account")
     fun deleteMember(): ApiResult<*> {

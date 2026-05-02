@@ -1,6 +1,7 @@
 package me.courtboard.api.api.board
 
 import jakarta.validation.Valid
+import me.courtboard.api.aop.CheckLogin
 import me.courtboard.api.api.board.dto.BoardReqDto
 import me.courtboard.api.api.board.service.BoardService
 import me.courtboard.api.global.dto.ApiResult
@@ -18,6 +19,7 @@ class BoardController(
     private val boardService: BoardService,
 ) {
 
+    @CheckLogin
     @PostMapping("/api/board")
     fun postBoard(@Valid @RequestBody dto: BoardReqDto): ApiResult<*> {
         val result = boardService.createBoard(dto)
@@ -39,6 +41,7 @@ class BoardController(
         return ApiResult.ok(result)
     }
 
+    @CheckLogin
     @PutMapping("/api/board/{id}")
     fun putBoard(
         @PathVariable id: String,
@@ -48,6 +51,7 @@ class BoardController(
         return ApiResult.ok(result)
     }
 
+    @CheckLogin
     @DeleteMapping("/api/board/{id}")
     fun deleteBoard(@PathVariable id: String): ApiResult<*> {
         boardService.deleteBoard(id)

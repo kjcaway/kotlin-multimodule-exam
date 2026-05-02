@@ -1,6 +1,7 @@
 package me.courtboard.api.api.member
 
 import jakarta.validation.Valid
+import me.courtboard.api.aop.CheckLogin
 import me.courtboard.api.api.member.dto.*
 import me.courtboard.api.api.member.service.GoogleAuthService
 import me.courtboard.api.api.member.service.MemberMailService
@@ -18,9 +19,9 @@ class MemberController(
     val googleAuthService: GoogleAuthService
 ) {
 
+    @CheckLogin
     @GetMapping("/api/member/check")
     fun checkToken(): ApiResult<*> {
-        memberService.checkToken()
         return ApiResult.ok()
     }
 

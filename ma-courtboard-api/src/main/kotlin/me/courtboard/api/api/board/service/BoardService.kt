@@ -24,10 +24,6 @@ class BoardService(
 ) {
 
     fun createBoard(dto: BoardReqDto): Map<String, Any> {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required")
-        }
-
         val createdBy = CourtboardContext.getContext().memberId
         val sanitizedContents = BoardHtmlSanitizer.sanitize(dto.contents)
 
@@ -87,10 +83,6 @@ class BoardService(
     }
 
     private fun checkOwner(id: String): BoardEntity {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required")
-        }
-
         val entity = boardRepository.findById(id)
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 

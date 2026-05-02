@@ -136,9 +136,6 @@ class MemberService(
     }
 
     fun changeName(dto: ChangeNameReqDto) {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
-        }
         val memberId = CourtboardContext.getContext().memberId
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
             ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
@@ -153,9 +150,6 @@ class MemberService(
 
     @Transactional
     fun changePassword(dto: ChangePasswordReqDto) {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
-        }
         val memberId = CourtboardContext.getContext().memberId
         val member = memberRepository.findById(UUID.fromString(memberId))
             ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
@@ -170,9 +164,6 @@ class MemberService(
 
     @Transactional
     fun deleteMember() {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.FORBIDDEN)
-        }
         val memberId = CourtboardContext.getContext().memberId
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
             ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
@@ -181,12 +172,6 @@ class MemberService(
         memberRepository.deleteById(UUID.fromString(memberId))
 
         enforcer.deleteUser(memberId)
-    }
-
-    fun checkToken() {
-        if (!CourtboardContext.isLogin()) {
-            throw CustomRuntimeException(HttpStatus.UNAUTHORIZED, "Invalid token")
-        }
     }
 
     fun getAllMembers(start: Int, limit: Int): List<MemberAdminListResDto> {
