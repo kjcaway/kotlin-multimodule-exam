@@ -180,7 +180,18 @@ class MemberService(
             limit.coerceAtLeast(1),
             org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
         )
-        return memberInfoRepository.findAll(pageable).content.map { it.toMemberAdminListResDto() }
+        return memberInfoRepository.findAll(pageable).content.map {
+            it.toMemberAdminListResDto(getRole(it.id.toString()))
+        }
+    }
+
+    fun updateMemberRole(memberId: String, role: String) {
+        memberInfoRepository.findById(UUID.fromString(memberId))
+            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "User not found")
+        enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).forEach { existingRole ->
+            enforcer.deleteRoleForUserInDomain(memberId, existingRole, Constants.COURTBOARD)
+        }
+        enforcer.addRoleForUserInDomain(memberId, role, Constants.COURTBOARD)
     }
 
     fun getAllMembersCount(): Long {

@@ -8,16 +8,18 @@ data class MemberAdminListResDto(
     val email: String,
     val name: String?,
     val provider: String?,
+    val role: String,
     val createdAt: LocalDateTime,
     val lastloginAt: LocalDateTime?
 ) {
     companion object {
-        fun MemberInfoEntity.toMemberAdminListResDto(): MemberAdminListResDto {
+        fun MemberInfoEntity.toMemberAdminListResDto(role: String): MemberAdminListResDto {
             return MemberAdminListResDto(
                 id = this.id.toString(),
                 email = this.email ?: "",
                 name = this.name,
                 provider = this.provider,
+                role = role,
                 createdAt = this.createdAt,
                 lastloginAt = this.lastloginAt
             )

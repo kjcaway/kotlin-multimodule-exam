@@ -1,7 +1,9 @@
 package me.courtboard.api.api.member
 
+import jakarta.validation.Valid
 import me.courtboard.api.aop.CheckPerm
 import me.courtboard.api.api.member.dto.MemberGrantReqDto
+import me.courtboard.api.api.member.dto.MemberRoleUpdateReqDto
 import me.courtboard.api.api.member.service.MemberService
 import me.courtboard.api.global.dto.ApiResult
 import org.springframework.web.bind.annotation.*
@@ -31,6 +33,16 @@ class MemberAdminController(
     @PostMapping("/api/admin/grant-role")
     fun grantRoleForUser(@RequestBody dto: MemberGrantReqDto): ApiResult<*> {
         memberService.grantRoleForUser(dto.email, dto.role)
+        return ApiResult.ok()
+    }
+
+    @CheckPerm
+    @PutMapping("/api/admin/users/{id}/role")
+    fun updateMemberRole(
+        @PathVariable id: String,
+        @Valid @RequestBody dto: MemberRoleUpdateReqDto,
+    ): ApiResult<*> {
+        memberService.updateMemberRole(id, dto.role)
         return ApiResult.ok()
     }
 }
