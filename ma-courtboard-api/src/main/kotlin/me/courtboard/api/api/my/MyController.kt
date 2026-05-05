@@ -5,15 +5,19 @@ import me.courtboard.api.aop.CheckLogin
 import me.courtboard.api.aop.CheckPerm
 import me.courtboard.api.api.member.dto.ChangeNameReqDto
 import me.courtboard.api.api.member.dto.ChangePasswordReqDto
+import me.courtboard.api.api.member.service.MemberAvatarService
 import me.courtboard.api.api.member.service.MemberService
 import me.courtboard.api.api.tactics.service.TacticsService
+import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.dto.ApiResult
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class MyController(
     private val memberService: MemberService,
     private val tacticsService: TacticsService,
+    private val memberAvatarService: MemberAvatarService,
 ) {
     @CheckPerm
     @GetMapping("/api/my/tactics")
@@ -51,5 +55,23 @@ class MyController(
     fun deleteMember(): ApiResult<*> {
         memberService.deleteMember()
         return ApiResult.ok()
+    }
+
+    @CheckLogin
+    @CheckPerm
+    @PostMapping("/api/my/avatar")
+    fun uploadAvatar(@RequestPart("file") file: MultipartFile): ApiResult<*> {
+        val memberId = CourtboardContext.getContext().memberId
+        val result = memberAvatarService.uploadAvatar(memberId, file)
+        return ApiResult.ok(result)
+    }
+
+    @CheckLogin
+    @CheckPerm
+    @DeleteMapping("/api/my/avatar")
+    fun deleteAvatar(): ApiResult<*> {
+        val memberId = CourtboardContext.getContext().memberId
+        val result = memberAvatarService.deleteAvatar(memberId)
+        return ApiResult.ok(result)
     }
 }

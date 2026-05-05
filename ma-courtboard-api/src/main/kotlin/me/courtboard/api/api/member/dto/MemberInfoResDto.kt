@@ -8,6 +8,7 @@ data class MemberInfoResDto(
     val email: String,
     val name: String,
     val avatarUrl: String? = null,
+    val provider: String? = null,
     val createdAt: LocalDateTime,
     val lastloginAt: LocalDateTime? = null
 ) {
@@ -18,6 +19,7 @@ data class MemberInfoResDto(
                 name = this.name!!,
                 email = this.email!!,
                 avatarUrl = this.avatarUrl,
+                provider = this.provider,
                 createdAt = this.createdAt,
                 lastloginAt = this.lastloginAt
             )

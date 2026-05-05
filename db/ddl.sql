@@ -71,3 +71,17 @@ CREATE TABLE tbl_board
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_id VARCHAR(100)
 );
+
+CREATE TABLE IF NOT EXISTS tbl_board_image (
+                                               id          VARCHAR(64)  PRIMARY KEY,
+                                               board_id    VARCHAR(64)  NULL,
+                                               file_path   VARCHAR(512) NOT NULL,
+                                               url_path    VARCHAR(256) NOT NULL,
+                                               mime_type   VARCHAR(64)  NOT NULL,
+                                               file_size   BIGINT       NOT NULL,
+                                               created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
+                                               created_id  VARCHAR(64)  NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_board_image_board_id   ON tbl_board_image (board_id);
+CREATE INDEX IF NOT EXISTS idx_board_image_created_at ON tbl_board_image (created_at);

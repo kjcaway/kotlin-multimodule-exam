@@ -13,7 +13,8 @@ data class TacticsResDto(
     val isHalfCourt: Boolean,
     val createdAt: LocalDateTime,
     var createdName: String? = null,
-    var createdId: String? = null
+    var createdId: String? = null,
+    var createdAvatarUrl: String? = null
 ) {
     data class States(
         val formations: Map<String, Formation>,
@@ -63,5 +64,9 @@ data class TacticsResDto(
 
     fun updateCreatedId(id: String?) {
         this.createdId = id
+    }
+
+    fun updateCreatedAvatarUrl(url: String?) {
+        this.createdAvatarUrl = url
     }
 }

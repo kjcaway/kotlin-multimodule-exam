@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   mail:
     host: smtp.gmail.com
     port: 587
@@ -34,6 +38,9 @@ spring:
 
 app:
   allowed-origin: http://localhost:3000
+
+storage:
+  path: /tmp/courtboard-uploads
 
 logging:
   config: classpath:log4j2/log4j2-spring.xml

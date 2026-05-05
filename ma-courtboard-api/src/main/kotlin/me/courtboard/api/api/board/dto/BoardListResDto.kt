@@ -7,5 +7,8 @@ data class BoardListResDto(
     val title: String,
     val createdId: String,
     val createdName: String?,
+    val createdAvatarUrl: String? = null,
     val createdAt: LocalDateTime,
+    val excerpt: String? = null,
+    val thumbnailUrl: String? = null,
 )

@@ -11,6 +11,7 @@ data class TacticsListResDto(
     val isTemplate: Boolean? = null,
     val createdAt: LocalDateTime,
     val createdName: String? = null,
+    val createdAvatarUrl: String? = null,
     val isHalfCourt: Boolean = false,
 ) {
 

@@ -2,6 +2,7 @@ package me.courtboard.api.api.board.dto
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import me.multimoduleexam.validator.XssChecker
 
@@ -15,6 +16,10 @@ import me.multimoduleexam.validator.XssChecker
 data class BoardReqDto(
     @field:NotBlank(message = "Title is required")
     @field:Size(min = 2, max = 256, message = "Title must be between 2 and 256 characters")
+    @field:Pattern(
+        regexp = "^[^/?#]+$",
+        message = "Title cannot contain '/', '?' or '#'",
+    )
     @field:XssChecker(message = "Title contains invalid characters")
     val title: String,
 

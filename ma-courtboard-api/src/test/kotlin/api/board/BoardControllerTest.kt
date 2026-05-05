@@ -5,6 +5,7 @@ import me.courtboard.api.api.board.BoardController
 import me.courtboard.api.api.board.dto.BoardListResDto
 import me.courtboard.api.api.board.dto.BoardReqDto
 import me.courtboard.api.api.board.dto.BoardResDto
+import me.courtboard.api.api.board.service.BoardImageService
 import me.courtboard.api.api.board.service.BoardService
 import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
@@ -36,6 +37,9 @@ class BoardControllerTest {
 
     @Mock
     private lateinit var boardService: BoardService
+
+    @Mock
+    private lateinit var boardImageService: BoardImageService
 
     @InjectMocks
     private lateinit var boardController: BoardController
@@ -201,6 +205,63 @@ class BoardControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data", hasSize<Any>(0)))
+    }
+
+    @Test
+    fun `POST api board - title에 금지문자 포함 시 400 반환`() {
+        val invalidBody = mapOf(
+            "title" to "전술/공유",
+            "contents" to "<p>본문 내용</p>"
+        )
+
+        mockMvc.perform(
+            post("/api/board")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidBody))
+        )
+            .andDo(print())
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `GET api board by-author - 게시물 단건 조회 성공`() {
+        val resDto = BoardResDto(
+            id = "board-by-author-1",
+            title = "by-author 조회 테스트",
+            contents = "<p>본문</p>",
+            createdId = "member-1",
+            createdName = "관리자A",
+            createdAt = LocalDateTime.now(),
+        )
+        whenever(boardService.getBoardByAuthor(eq("관리자A"), eq("by-author 조회 테스트")))
+            .thenReturn(resDto)
+
+        mockMvc.perform(
+            get("/api/board/by-author")
+                .param("name", "관리자A")
+                .param("title", "by-author 조회 테스트")
+        )
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.id").value("board-by-author-1"))
+            .andExpect(jsonPath("$.data.createdName").value("관리자A"))
+    }
+
+    @Test
+    fun `GET api board by-author - 매칭 없으면 404 반환`() {
+        whenever(boardService.getBoardByAuthor(eq("없는사람"), eq("없는제목")))
+            .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
+
+        mockMvc.perform(
+            get("/api/board/by-author")
+                .param("name", "없는사람")
+                .param("title", "없는제목")
+        )
+            .andDo(print())
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.success").value(false))
     }
 
     @Test

@@ -66,7 +66,8 @@ class GoogleAuthService(
                 "id" to memberInfo.id.toString(),
                 "name" to memberInfo.name!!,
                 "email" to memberInfo.email!!,
-                "role" to role
+                "role" to role,
+                "avatarUrl" to (memberInfo.avatarUrl ?: "")
             )
         )
         val refreshToken = jwtProvider.generateRefreshToken(email)

@@ -43,6 +43,9 @@ dependencies {
     // html sanitizer (xss prevention for rich text)
     implementation("org.jsoup:jsoup:1.17.2")
 
+    // image thumbnail (avatar resize)
+    implementation("net.coobird:thumbnailator:0.4.20")
+
     // casbin
     implementation("org.casbin:casbin-spring-boot-starter:1.9.0")
 

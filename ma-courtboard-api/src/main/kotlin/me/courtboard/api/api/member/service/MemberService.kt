@@ -43,7 +43,8 @@ class MemberService(
             "id" to memberInfo.id.toString(),
             "name" to memberInfo.name!!,
             "email" to memberInfo.email!!,
-            "role" to getRole(memberInfo.id.toString())
+            "role" to getRole(memberInfo.id.toString()),
+            "avatarUrl" to (memberInfo.avatarUrl ?: "")
         ))
         val refreshToken = jwtProvider.generateRefreshToken(dto.email)
 
@@ -79,7 +80,8 @@ class MemberService(
                     "id" to memberInfo.id.toString(),
                     "name" to memberInfo.name!!,
                     "email" to memberInfo.email!!,
-                    "role" to getRole(memberInfo.id.toString())
+                    "role" to getRole(memberInfo.id.toString()),
+                    "avatarUrl" to (memberInfo.avatarUrl ?: "")
                 )
             )
             val refreshToken = jwtProvider.generateRefreshToken(email)

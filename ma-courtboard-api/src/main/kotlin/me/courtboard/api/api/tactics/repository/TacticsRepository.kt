@@ -15,7 +15,7 @@ interface TacticsRepository : JpaRepository<TacticsEntity, String> {
 
     @Query(
         """
-       SELECT t.id, t.name, t.description, t.created_at, mi.name as created_name 
+       SELECT t.id, t.name, t.description, t.created_at, mi.name as created_name, mi.avatar_url as created_avatar_url
        FROM tbl_tactics t
        LEFT JOIN tbl_memberinfo mi ON cast(mi.id as text) = t.created_id
        WHERE t.created_id != 'UNKNOWN' AND t.is_public = true
@@ -23,7 +23,7 @@ interface TacticsRepository : JpaRepository<TacticsEntity, String> {
        OFFSET :start ROWS FETCH NEXT :limit ROWS ONLY
     """, nativeQuery = true
     )
-    fun findAllByPublic(@Param("start") start: Int, @Param("limit") limit: Int): List<Array<Any>>
+    fun findAllByPublic(@Param("start") start: Int, @Param("limit") limit: Int): List<Array<Any?>>
 
     @Query(
         """

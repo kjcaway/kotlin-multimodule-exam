@@ -17,16 +17,24 @@
 src/main/kotlin/me/courtboard/api/
 ├── aop/                  # @CheckPerm 어노테이션 + AOP 권한 검사
 ├── api/
-│   ├── board/            # 게시판 도메인 (Entity, DTO, Repository, Service, Controller, util/BoardHtmlSanitizer)
-│   ├── member/           # 회원 도메인 (Entity, DTO, Repository, Service, Controller)
-│   ├── my/               # 내 정보 API
-│   └── tactics/          # 전술 도메인 (Entity, DTO, Repository, Service, Controller)
+│   ├── board/            # 게시판 도메인
+│   │   ├── BoardController.kt    # CRUD + POST /api/board/images (이미지 업로드)
+│   │   ├── entity/               # BoardEntity, BoardImageEntity
+│   │   ├── dto/                  # BoardReqDto, BoardResDto, BoardListResDto, BoardImageResDto
+│   │   ├── repository/           # BoardRepository, BoardImageRepository
+│   │   ├── service/              # BoardService, BoardImageService
+│   │   └── util/BoardHtmlSanitizer.kt
+│   ├── internal/                 # InternalController (loopback 전용 운영 엔드포인트)
+│   ├── member/                   # 회원 도메인
+│   ├── my/                       # 내 정보 API
+│   └── tactics/                  # 전술 도메인
 ├── component/
 │   ├── JwtProvider.kt    # Access/Refresh Token 발급·검증
 │   └── CustomMailSender.kt
-├── config/               # WebConfig (CORS 등), BeanConfig
+├── config/               # WebConfig (CORS + /uploads 정적 리소스 핸들러), BeanConfig
 ├── filter/
-│   └── AuthFilter.kt     # JWT 파싱 → CourtboardContext(ThreadLocal) 세팅
+│   ├── AuthFilter.kt          # JWT 파싱 → CourtboardContext(ThreadLocal) 세팅
+│   └── UploadsHeaderFilter.kt # /uploads 응답에 nosniff/CSP/Content-Disposition 강제
 ├── global/
 │   ├── CourtboardContext.kt  # ThreadLocal 기반 요청별 유저 컨텍스트
 │   ├── Constants.kt          # 역할 상수: admin / user / guest
@@ -34,6 +42,11 @@ src/main/kotlin/me/courtboard/api/
 │   └── error/                # CustomExceptionHandler, CustomRuntimeException
 ├── listener/             # StartupListener, ShutdownListener
 └── util/PasswordUtil.kt
+
+src/main/resources/
+├── application.yml / application-dev.yml / application-prod.yml
+├── casbin/                # Casbin 모델/정책
+└── db/V01__board_image.sql # tbl_board_image DDL (운영 DB에 수동 적용)
 ```
 
 ## Architecture
@@ -116,9 +129,33 @@ spring:
 - **DTO 네이밍**: `*ReqDto` (요청), `*ResDto` (응답)
 - **Controller 분리**: 일반 사용자용과 admin/manage용 Controller가 별도 파일로 분리됨 (예: `TacticsController` vs `TacticsAdminController`)
 - **전술 데이터**: `formations`, `playerInfo`를 JSON으로 DB `states` 컬럼에 저장
-- **게시판 본문 HTML**: `BoardHtmlSanitizer`(jsoup 기반)로 XSS 방지를 위한 sanitize 후 저장
+- **게시판 본문 HTML**: `BoardHtmlSanitizer`(jsoup 기반)로 XSS 방지를 위한 sanitize 후 저장. `data:` 프로토콜은 기존 base64 인라인 게시물 호환을 위해 한동안 유지(이전 방식의 잔존물).
 - **게시판 수정/삭제 권한**: 작성자 본인만 가능 (PUT/DELETE `/api/board/{id}`에서 author-only 체크)
 - **공통 모듈**: `module-common`의 `JsonUtil` 등 유틸을 `me.multimoduleexam.util` 패키지로 임포트
+
+## 게시판 이미지 업로드 / 정적 서빙
+
+게시판 이미지는 **로컬 파일 시스템 + DB 메타데이터** 구조로 저장한다.
+
+### 업로드 파이프라인 (`POST /api/board/images`)
+
+1. `BoardController.uploadImage` — `@CheckPerm` + `@RequestPart("file")` (multipart). Casbin 정책에 `(role, courtboard, /api/board/images, POST)` 등록 필요.
+2. `BoardImageService.upload`:
+   - **검증**: 빈 파일/`5MB` 초과 거부, MIME 화이트리스트(`image/png|jpeg|webp|gif`), `verifyMagicBytes`로 파일 시그니처가 헤더와 일치하는지 직접 확인 (Content-Type 위장 차단).
+3. 프론트가 응답 URL을 게시물 본문 `<img src>`에 임베드.
+
+### Storage 설정
+
+```yaml
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+storage:
+  path: /tmp/courtboard-uploads   # dev (application-dev.yml)
+```
 
 ## Testing
 

@@ -52,6 +52,7 @@ class TacticsService(
             val description = row[2] as String?
             val createdAt = row[3] as Timestamp
             val createdName = row[4] as String?
+            val createdAvatarUrl = row[5] as String?
 
             TacticsListResDto(
                 id = id,
@@ -59,7 +60,8 @@ class TacticsService(
                 description = description,
                 isPublic = true, // always true for public tactics
                 createdAt = createdAt.toLocalDateTime(),
-                createdName = createdName
+                createdName = createdName,
+                createdAvatarUrl = createdAvatarUrl,
             )
         }
     }
@@ -103,6 +105,7 @@ class TacticsService(
                 .getOrElse { null }
             result.updateCreatedName(memberInfo?.name)
             result.updateCreatedId(memberInfo?.id.toString())
+            result.updateCreatedAvatarUrl(memberInfo?.avatarUrl)
         }
 
         return result
