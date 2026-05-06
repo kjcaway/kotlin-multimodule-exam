@@ -9,11 +9,16 @@ data class BoardResDto(
     val contents: String?,
     val createdId: String,
     var createdName: String? = null,
+    var createdAvatarUrl: String? = null,
     val createdAt: LocalDateTime,
 ) {
 
     fun updateCreatedName(name: String?) {
         this.createdName = name
+    }
+
+    fun updateCreatedAvatarUrl(url: String?) {
+        this.createdAvatarUrl = url
     }
 
     companion object {

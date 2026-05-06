@@ -82,6 +82,7 @@ class BoardService(
                 .mapCatching { memberInfoRepository.findById(it).getOrElse { null } }
                 .getOrElse { null }
             result.updateCreatedName(memberInfo?.name)
+            result.updateCreatedAvatarUrl(memberInfo?.avatarUrl)
         }
         return result
     }
@@ -92,6 +93,12 @@ class BoardService(
 
         val result = entity.toBoardResDto()
         result.updateCreatedName(name)
+        if (entity.createdId != "UNKNOWN") {
+            val memberInfo = runCatching { UUID.fromString(entity.createdId) }
+                .mapCatching { memberInfoRepository.findById(it).getOrElse { null } }
+                .getOrElse { null }
+            result.updateCreatedAvatarUrl(memberInfo?.avatarUrl)
+        }
         return result
     }
 

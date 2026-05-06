@@ -12,3 +12,7 @@ values ('p', 'admin', 'courtboard', '*', '(get)|(post)|(put)|(delete)', null, nu
 
 insert into tbl_casbin_rule (ptype, v0, v1, v2, v3, v4, v5)
 values ('p', 'user', 'courtboard', '/api/board', '(post)|(put)|(delete)',null, null);
+
+-- 2026-05-05
+INSERT INTO tbl_casbin_rule (ptype, v0, v1, v2, v3) VALUES ('p', 'user',  'courtboard', '/api/board/images', 'POST');
+INSERT INTO tbl_casbin_rule (ptype, v0, v1, v2, v3) VALUES ('p', 'admin', 'courtboard', '/api/board/images', 'POST');
