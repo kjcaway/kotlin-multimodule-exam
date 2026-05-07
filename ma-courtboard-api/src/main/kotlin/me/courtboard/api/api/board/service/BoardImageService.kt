@@ -168,6 +168,12 @@ class BoardImageService(
         val doc = Jsoup.parse(html)
         return doc.select("img")
             .mapNotNull { it.attr("src").takeIf { src -> src.isNotBlank() } }
+            .mapNotNull { src ->
+                runCatching {
+                    if (src.startsWith("/")) src
+                    else java.net.URI(src).rawPath
+                }.getOrNull()
+            }
             .filter { it.startsWith(URL_PREFIX) }
             .distinct()
     }
