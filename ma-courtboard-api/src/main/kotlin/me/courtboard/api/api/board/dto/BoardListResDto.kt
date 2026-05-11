@@ -11,4 +11,5 @@ data class BoardListResDto(
     val createdAt: LocalDateTime,
     val excerpt: String? = null,
     val thumbnailUrl: String? = null,
+    val commentCount: Long = 0,
 )

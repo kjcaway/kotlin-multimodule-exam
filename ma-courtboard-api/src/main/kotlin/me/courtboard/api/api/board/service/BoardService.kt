@@ -26,6 +26,7 @@ class BoardService(
     private val boardRepository: BoardRepository,
     private val memberInfoRepository: MemberInfoRepository,
     private val boardImageService: BoardImageService,
+    private val boardCommentService: BoardCommentService,
 ) {
 
     @Transactional
@@ -59,6 +60,7 @@ class BoardService(
                 createdAvatarUrl = row[6] as String?,
                 excerpt = excerpt,
                 thumbnailUrl = thumbnailUrl,
+                commentCount = (row[7] as Number?)?.toLong() ?: 0L,
             )
         }
     }
@@ -123,6 +125,7 @@ class BoardService(
     @Transactional
     fun deleteBoard(id: String) {
         val entity = checkOwner(id)
+        boardCommentService.deleteAllByBoard(entity.id)
         boardImageService.deleteAllByBoard(entity.id)
         boardRepository.delete(entity)
     }

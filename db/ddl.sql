@@ -1,15 +1,15 @@
 CREATE TABLE tbl_tactics
 (
-    id          VARCHAR(255) PRIMARY KEY,
-    name        VARCHAR(100) NOT NULL,
-    description VARCHAR(1024),
-    states      TEXT,
-    is_public   BOOLEAN   DEFAULT FALSE,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_id  VARCHAR(100) NOT NULL,
-    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_id  VARCHAR(100),
-    is_template BOOLEAN   DEFAULT FALSE,
+    id            VARCHAR(255) PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL,
+    description   VARCHAR(1024),
+    states        TEXT,
+    is_public     BOOLEAN   DEFAULT FALSE,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_id    VARCHAR(100) NOT NULL,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_id    VARCHAR(100),
+    is_template   BOOLEAN   DEFAULT FALSE,
     is_half_court BOOLEAN   DEFAULT FALSE
 );
 
@@ -72,16 +72,33 @@ CREATE TABLE tbl_board
     updated_id VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS tbl_board_image (
-                                               id          VARCHAR(64)  PRIMARY KEY,
-                                               board_id    VARCHAR(64)  NULL,
-                                               file_path   VARCHAR(512) NOT NULL,
-                                               url_path    VARCHAR(256) NOT NULL,
-                                               mime_type   VARCHAR(64)  NOT NULL,
-                                               file_size   BIGINT       NOT NULL,
-                                               created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
-                                               created_id  VARCHAR(64)  NOT NULL
+CREATE TABLE IF NOT EXISTS tbl_board_image
+(
+    id         VARCHAR(64) PRIMARY KEY,
+    board_id   VARCHAR(64)  NULL,
+    file_path  VARCHAR(512) NOT NULL,
+    url_path   VARCHAR(256) NOT NULL,
+    mime_type  VARCHAR(64)  NOT NULL,
+    file_size  BIGINT       NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_id VARCHAR(64)  NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_board_image_board_id   ON tbl_board_image (board_id);
+CREATE INDEX IF NOT EXISTS idx_board_image_board_id ON tbl_board_image (board_id);
 CREATE INDEX IF NOT EXISTS idx_board_image_created_at ON tbl_board_image (created_at);
+
+CREATE TABLE IF NOT EXISTS tbl_board_comment
+(
+    id         VARCHAR(64) PRIMARY KEY,
+    board_id   VARCHAR(64) NOT NULL,
+    parent_id  VARCHAR(64) NULL,
+    contents   TEXT        NOT NULL,
+    created_at TIMESTAMP   NOT NULL DEFAULT NOW(),
+    created_id VARCHAR(64) NOT NULL,
+    updated_at TIMESTAMP   NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP   NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_board_comment_board_id ON tbl_board_comment (board_id);
+CREATE INDEX IF NOT EXISTS idx_board_comment_parent_id ON tbl_board_comment (parent_id);
+CREATE INDEX IF NOT EXISTS idx_board_comment_created_at ON tbl_board_comment (created_at);

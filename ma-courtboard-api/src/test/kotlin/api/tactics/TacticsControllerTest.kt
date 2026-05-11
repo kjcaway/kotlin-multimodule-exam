@@ -20,9 +20,12 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.mockito.kotlin.doThrow
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -197,6 +200,156 @@ class TacticsControllerTest {
             .andDo(print())
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `PUT api tactics id - 전술 수정 성공`() {
+        val id = "tactic-update"
+        val reqDto = validTacticsReqDto()
+        whenever(tacticsService.updateTactic(eq(id), any())).thenReturn(mapOf("id" to id))
+
+        mockMvc.perform(
+            put("/api/tactics/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data.id").value(id))
+    }
+
+    @Test
+    fun `PUT api tactics id - 작성자 본인이 아니면 403 반환`() {
+        val id = "tactic-update"
+        val reqDto = validTacticsReqDto()
+        whenever(tacticsService.updateTactic(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource"))
+
+        mockMvc.perform(
+            put("/api/tactics/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `PUT api tactics id - UNKNOWN 작성자 전술이면 400 반환`() {
+        val id = "tactic-unknown-author"
+        val reqDto = validTacticsReqDto()
+        whenever(tacticsService.updateTactic(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.BAD_REQUEST, "this tactic is not created by you"))
+
+        mockMvc.perform(
+            put("/api/tactics/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.success").value(false))
+            .andExpect(jsonPath("$.message").value("this tactic is not created by you"))
+    }
+
+    @Test
+    fun `PUT api tactics id - 존재하지 않으면 404 반환`() {
+        val id = "missing-id"
+        val reqDto = validTacticsReqDto()
+        whenever(tacticsService.updateTactic(eq(id), any()))
+            .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
+
+        mockMvc.perform(
+            put("/api/tactics/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqDto))
+        )
+            .andDo(print())
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `DELETE api tactics id - 전술 삭제 성공`() {
+        val id = "tactic-delete"
+
+        mockMvc.perform(delete("/api/tactics/{id}", id))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+    }
+
+    @Test
+    fun `DELETE api tactics id - 작성자 본인이 아니면 403 반환`() {
+        val id = "tactic-delete"
+        doThrow(
+            CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource")
+        ).whenever(tacticsService).deleteTactic(id)
+
+        mockMvc.perform(delete("/api/tactics/{id}", id))
+            .andDo(print())
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `DELETE api tactics id - 존재하지 않으면 404 반환`() {
+        val id = "missing-id"
+        doThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
+            .whenever(tacticsService).deleteTactic(id)
+
+        mockMvc.perform(delete("/api/tactics/{id}", id))
+            .andDo(print())
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.success").value(false))
+    }
+
+    @Test
+    fun `GET api tactics-templates - 템플릿 목록 조회 성공`() {
+        val now = LocalDateTime.now()
+        val templates = listOf(
+            TacticsResDto(
+                id = "tpl-1",
+                name = "Pick and Roll",
+                description = "기본 PnR",
+                states = TacticsResDto.States(
+                    formations = mapOf(
+                        "step1" to TacticsResDto.Formation(
+                            ball = TacticsResDto.Ball(10, 20),
+                            players = listOf(TacticsResDto.Player(1L, 30, 40))
+                        )
+                    ),
+                    playerInfo = listOf(
+                        TacticsResDto.PlayerInfo(id = 1L, name = "PG", color = "#fff", showGhost = false)
+                    )
+                ),
+                isPublic = true,
+                isHalfCourt = false,
+                createdAt = now,
+            ),
+        )
+        whenever(tacticsService.getTacticTemplates()).thenReturn(templates)
+
+        mockMvc.perform(get("/api/tactics-templates"))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data", hasSize<Any>(1)))
+            .andExpect(jsonPath("$.data[0].id").value("tpl-1"))
+            .andExpect(jsonPath("$.data[0].name").value("Pick and Roll"))
+    }
+
+    @Test
+    fun `GET api tactics-templates - 빈 결과 반환`() {
+        whenever(tacticsService.getTacticTemplates()).thenReturn(emptyList())
+
+        mockMvc.perform(get("/api/tactics-templates"))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.data", hasSize<Any>(0)))
     }
 
     private fun validTacticsReqDto(): TacticsReqDto {

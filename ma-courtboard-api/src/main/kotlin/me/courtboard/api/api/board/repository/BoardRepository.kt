@@ -11,7 +11,8 @@ interface BoardRepository : JpaRepository<BoardEntity, String> {
 
     @Query(
         """
-       SELECT b.id, b.title, b.created_id, b.created_at, mi.name as created_name, b.contents, mi.avatar_url as created_avatar_url
+       SELECT b.id, b.title, b.created_id, b.created_at, mi.name as created_name, b.contents, mi.avatar_url as created_avatar_url,
+              (SELECT COUNT(*) FROM tbl_board_comment c WHERE c.board_id = b.id AND c.deleted_at IS NULL) as comment_count
        FROM tbl_board b
        LEFT JOIN tbl_memberinfo mi ON cast(mi.id as text) = b.created_id
        ORDER BY b.created_at DESC
