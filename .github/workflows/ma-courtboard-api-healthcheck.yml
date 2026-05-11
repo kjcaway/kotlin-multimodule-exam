@@ -24,7 +24,7 @@ jobs:
           echo "db=$DB"         >> "$GITHUB_OUTPUT"
           echo "disk=$DISK"     >> "$GITHUB_OUTPUT"
 
-          if [ "$CODE" -ne 0 ] || [ "$STATUS" != "UP" ]; then
+          if [ "$CODE" -ne 0 ] || [ "$DB" != "UP" ]; then
             echo "healthy=false" >> "$GITHUB_OUTPUT"
           else
             echo "healthy=true" >> "$GITHUB_OUTPUT"
@@ -54,13 +54,38 @@ jobs:
           echo "cert_end=$END_DATE"  >> "$GITHUB_OUTPUT"
           echo "cert_days=$DAYS_LEFT" >> "$GITHUB_OUTPUT"
 
+      - name: Decide notification
+        id: decide
+        run: |
+          NOTIFY=false
+          REASON=""
+
+          if [ "${{ steps.probe.outputs.healthy }}" != "true" ]; then
+            NOTIFY=true
+            REASON="db"
+          fi
+
+          CERT_DAYS='${{ steps.cert.outputs.cert_days }}'
+          if [ "$CERT_DAYS" != "UNKNOWN" ] && [ -n "$CERT_DAYS" ] && [ "$CERT_DAYS" -le 7 ] 2>/dev/null; then
+            NOTIFY=true
+            if [ -n "$REASON" ]; then
+              REASON="${REASON},cert"
+            else
+              REASON="cert"
+            fi
+          fi
+
+          echo "notify=$NOTIFY"  >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON"  >> "$GITHUB_OUTPUT"
+
       - name: Notify Discord
+        if: steps.decide.outputs.notify == 'true'
         run: |
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           if [ "${{ steps.probe.outputs.healthy }}" = "true" ]; then
-            TITLE=":white_check_mark: ma-courtboard-api UP"
-            COLOR=3066993
+            TITLE=":warning: ma-courtboard-api cert expiring soon"
+            COLOR=16776960
           else
             TITLE=":rotating_light: ma-courtboard-api DOWN"
             COLOR=15158332
