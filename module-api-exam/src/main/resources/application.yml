@@ -3,3 +3,6 @@ server:
 
 logging:
   config: classpath:log4j2/log4j2.xml
+
+app:
+  allowed-origin: http://localhost:3000

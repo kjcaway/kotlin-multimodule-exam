@@ -1,5 +1,6 @@
 package me.multimoduleexam.moduleapiexam.api
 
+import me.multimoduleexam.moduleapiexam.global.dto.ApiResult
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,11 +15,11 @@ class HelloController (
 
     @GetMapping
     fun get(): ResponseEntity<*> {
-        return ResponseEntity.ok("hello world!")
+        return ResponseEntity.ok(ApiResult.ok("hello world!"))
     }
 
     @GetMapping("/check/k8sconfig")
     fun checkK8sConfig(): ResponseEntity<*> {
-        return ResponseEntity.ok(datasourceUsername)
+        return ResponseEntity.ok(ApiResult.ok(datasourceUsername))
     }
 }

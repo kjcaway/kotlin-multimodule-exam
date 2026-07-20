@@ -18,7 +18,7 @@ class WebClientUtilTest {
             .get("http://localhost:8081/api/hello", mapOf("Content-Type" to "application/json"))
             .block()
 
-        Assertions.assertEquals("hello world!", res)
+        Assertions.assertEquals("""{"success":true,"data":"hello world!"}""", res)
     }
 
     @Disabled
