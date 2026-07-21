@@ -1,12 +1,21 @@
 plugins {
     jacoco
+    id("pl.allegro.tech.build.axion-release") version "1.18.16"
 }
 
 val projectGroup: String by project
-val applicationVersion: String by project
+
+scmVersion {
+    tag {
+        prefix.set("courtboard-v")
+        versionSeparator.set("")
+    }
+    versionIncrementer("incrementMinor")
+    unshallowRepoOnCI.set(true)
+}
 
 group = projectGroup
-version = applicationVersion
+version = scmVersion.version
 
 jacoco {
     toolVersion = "0.8.11"
@@ -15,6 +24,14 @@ jacoco {
 configurations {
     all {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+    }
+}
+
+springBoot {
+    buildInfo {
+        properties {
+            additional.set(mapOf("module" to "ma-courtboard-api"))
+        }
     }
 }
 
