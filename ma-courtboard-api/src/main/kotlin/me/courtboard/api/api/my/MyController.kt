@@ -37,8 +37,8 @@ class MyController(
     @CheckPerm
     @PutMapping("/api/my/info")
     fun changeMyInfo(@Valid @RequestBody dto: ChangeNameReqDto): ApiResult<*> {
-        val result = memberService.changeName(dto)
-        return ApiResult.ok(result)
+        memberService.changeName(dto)
+        return ApiResult.ok()
     }
 
     @CheckLogin

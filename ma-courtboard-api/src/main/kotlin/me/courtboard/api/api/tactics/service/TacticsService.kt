@@ -7,6 +7,7 @@ import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto.Companion.toTacticsResDto
 import me.courtboard.api.api.tactics.repository.TacticsRepository
+import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.JsonUtil
@@ -100,7 +101,7 @@ class TacticsService(
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
         val result = entity.toTacticsResDto()
-        if (entity.createdId != "UNKNOWN") {
+        if (entity.createdId != Constants.GUEST_ID) {
             val memberInfo = memberInfoRepository.findById(UUID.fromString(entity.createdId))
                 .getOrElse { null }
             result.updateCreatedName(memberInfo?.name)
@@ -176,7 +177,7 @@ class TacticsService(
         val entity = tacticsRepository.findById(id)
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
-        if(entity.createdId == "UNKNOWN") {
+        if(entity.createdId == Constants.GUEST_ID) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "this tactic is not created by you")
         }
 

@@ -1,13 +1,12 @@
-package api.member
+package me.courtboard.api.api.member
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.member.MemberAdminController
 import me.courtboard.api.api.member.dto.MemberAdminListResDto
 import me.courtboard.api.api.member.dto.MemberGrantReqDto
 import me.courtboard.api.api.member.dto.MemberRoleUpdateReqDto
 import me.courtboard.api.api.member.service.MemberService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,11 +26,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class MemberAdminControllerTest {
+class MemberAdminControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var memberService: MemberService
@@ -41,13 +39,9 @@ class MemberAdminControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(memberAdminController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(memberAdminController)
     }
 
     @Test

@@ -1,18 +1,17 @@
-package api.member
+package me.courtboard.api.api.member
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.member.MemberController
 import me.courtboard.api.api.member.dto.GoogleLoginReqDto
 import me.courtboard.api.api.member.dto.MemberCodeCheckReqDto
 import me.courtboard.api.api.member.dto.MemberLoginReqDto
-import me.courtboard.api.api.member.dto.MemberReqDto
 import me.courtboard.api.api.member.dto.MemberSendCodeReqDto
 import me.courtboard.api.api.member.dto.RefreshTokenReqDto
 import me.courtboard.api.api.member.service.GoogleAuthService
 import me.courtboard.api.api.member.service.MemberMailService
 import me.courtboard.api.api.member.service.MemberService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
+import me.courtboard.api.support.fixture.MemberFixtures
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,10 +30,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 @ExtendWith(MockitoExtension::class)
-class MemberControllerTest {
+class MemberControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var memberService: MemberService
@@ -50,13 +48,9 @@ class MemberControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(memberController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(memberController)
     }
 
     @Test
@@ -69,7 +63,7 @@ class MemberControllerTest {
 
     @Test
     fun `POST api member - 회원가입 성공`() {
-        val reqDto = validMemberReqDto()
+        val reqDto = MemberFixtures.validReqDto()
 
         mockMvc.perform(
             post("/api/member")
@@ -159,7 +153,7 @@ class MemberControllerTest {
 
     @Test
     fun `POST api member - 인증 코드 잘못되면 400 반환`() {
-        val reqDto = validMemberReqDto()
+        val reqDto = MemberFixtures.validReqDto()
         doThrow(CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid verification code"))
             .whenever(memberService).createNewMember(any())
 
@@ -176,7 +170,7 @@ class MemberControllerTest {
 
     @Test
     fun `POST api member - 이미 가입된 이메일이면 400 반환`() {
-        val reqDto = validMemberReqDto()
+        val reqDto = MemberFixtures.validReqDto()
         doThrow(CustomRuntimeException(HttpStatus.BAD_REQUEST, "Email already exists"))
             .whenever(memberService).createNewMember(any())
 
@@ -446,13 +440,4 @@ class MemberControllerTest {
             .andExpect(jsonPath("$.success").value(false))
     }
 
-    private fun validMemberReqDto(): MemberReqDto {
-        return MemberReqDto(
-            email = "abc@gmail.com",
-            name = "tester",
-            avatarUrl = null,
-            passwd = "password123",
-            code = "123456"
-        )
-    }
 }

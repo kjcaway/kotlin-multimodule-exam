@@ -1,14 +1,14 @@
-package api.board
+package me.courtboard.api.api.board
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.board.BoardController
 import me.courtboard.api.api.board.dto.BoardListResDto
 import me.courtboard.api.api.board.dto.BoardReqDto
 import me.courtboard.api.api.board.dto.BoardResDto
 import me.courtboard.api.api.board.service.BoardImageService
 import me.courtboard.api.api.board.service.BoardService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
+import me.courtboard.api.support.fixture.BoardFixtures
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,11 +29,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class BoardControllerTest {
+class BoardControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var boardService: BoardService
@@ -46,18 +45,14 @@ class BoardControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(boardController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(boardController)
     }
 
     @Test
     fun `POST api board - 게시물 생성 성공`() {
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         val createdId = "board-uuid-123"
         whenever(boardService.createBoard(any())).thenReturn(mapOf("id" to createdId))
 
@@ -124,7 +119,7 @@ class BoardControllerTest {
 
     @Test
     fun `POST api board - 비로그인 시 401 반환`() {
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         whenever(boardService.createBoard(any()))
             .thenThrow(CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required"))
 
@@ -302,7 +297,7 @@ class BoardControllerTest {
     @Test
     fun `PUT api board id - 게시물 수정 성공`() {
         val id = "board-uuid-update"
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         whenever(boardService.updateBoard(eq(id), any())).thenReturn(mapOf("id" to id))
 
         mockMvc.perform(
@@ -319,7 +314,7 @@ class BoardControllerTest {
     @Test
     fun `PUT api board id - 작성자 본인이 아니면 403 반환`() {
         val id = "board-uuid-update"
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         whenever(boardService.updateBoard(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource"))
 
@@ -336,7 +331,7 @@ class BoardControllerTest {
     @Test
     fun `PUT api board id - 비로그인 시 401 반환`() {
         val id = "board-uuid-update"
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         whenever(boardService.updateBoard(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.UNAUTHORIZED, "login required"))
 
@@ -353,7 +348,7 @@ class BoardControllerTest {
     @Test
     fun `PUT api board id - 존재하지 않으면 404 반환`() {
         val id = "missing-id"
-        val reqDto = validBoardReqDto()
+        val reqDto = BoardFixtures.validReqDto()
         whenever(boardService.updateBoard(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
 
@@ -415,10 +410,4 @@ class BoardControllerTest {
             .andExpect(jsonPath("$.success").value(false))
     }
 
-    private fun validBoardReqDto(): BoardReqDto {
-        return BoardReqDto(
-            title = "테스트 게시물 제목",
-            contents = "<p>본문 내용입니다.</p><p><strong>강조</strong></p>"
-        )
-    }
 }

@@ -1,12 +1,11 @@
-package api.tactics
+package me.courtboard.api.api.tactics
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.tactics.TacticsAdminController
 import me.courtboard.api.api.tactics.dto.TacticsListResDto
 import me.courtboard.api.api.tactics.dto.TacticsTemplateToggleReqDto
 import me.courtboard.api.api.tactics.service.TacticsService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,11 +23,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class TacticsAdminControllerTest {
+class TacticsAdminControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var tacticsService: TacticsService
@@ -38,13 +36,9 @@ class TacticsAdminControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(tacticsAdminController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(tacticsAdminController)
     }
 
     @Test

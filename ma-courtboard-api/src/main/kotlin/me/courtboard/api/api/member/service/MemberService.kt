@@ -11,6 +11,8 @@ import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.courtboard.api.util.PasswordUtil
+import me.courtboard.api.util.resolveRole
+import me.courtboard.api.util.toJwtClaims
 import org.casbin.jcasbin.main.Enforcer
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -33,19 +35,16 @@ class MemberService(
         val memberInfo = memberInfoRepository.findByEmail(dto.email)
             ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
         val member = memberRepository.findById(memberInfo.id)
-            ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
+            .orElseThrow { CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password") }
 
-        if (!PasswordUtil.checkPassword(dto.password, member.get().passwd)) {
+        if (!PasswordUtil.checkPassword(dto.password, member.passwd)) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
         }
 
-        val accessToken = jwtProvider.generateAccessToken( dto.email, mapOf(
-            "id" to memberInfo.id.toString(),
-            "name" to memberInfo.name!!,
-            "email" to memberInfo.email!!,
-            "role" to getRole(memberInfo.id.toString()),
-            "avatarUrl" to (memberInfo.avatarUrl ?: "")
-        ))
+        val accessToken = jwtProvider.generateAccessToken(
+            dto.email,
+            memberInfo.toJwtClaims(enforcer.resolveRole(memberInfo.id.toString()))
+        )
         val refreshToken = jwtProvider.generateRefreshToken(dto.email)
 
         // last login, refresh token update
@@ -58,9 +57,6 @@ class MemberService(
             "refresh_token" to refreshToken
         )
     }
-
-    private fun getRole(memberId: String): String =
-        enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
 
     fun getTokenByRefreshToken(dto: RefreshTokenReqDto): Map<String, String> {
         try {
@@ -76,13 +72,8 @@ class MemberService(
                 ?: throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or refresh token")
 
             val accessToken = jwtProvider.generateAccessToken(
-                email, mapOf(
-                    "id" to memberInfo.id.toString(),
-                    "name" to memberInfo.name!!,
-                    "email" to memberInfo.email!!,
-                    "role" to getRole(memberInfo.id.toString()),
-                    "avatarUrl" to (memberInfo.avatarUrl ?: "")
-                )
+                email,
+                memberInfo.toJwtClaims(enforcer.resolveRole(memberInfo.id.toString()))
             )
             val refreshToken = jwtProvider.generateRefreshToken(email)
 
@@ -133,44 +124,44 @@ class MemberService(
     fun getMyInfo(): MemberInfoResDto {
         val memberId = CourtboardContext.getContext().memberId
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
-            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
-        return memberInfo.get().toMemberInfoResDto()
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member") }
+        return memberInfo.toMemberInfoResDto()
     }
 
     fun changeName(dto: ChangeNameReqDto) {
         val memberId = CourtboardContext.getContext().memberId
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
-            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member") }
 
         if (dto.name.isBlank()) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Name cannot be empty")
         }
 
-        memberInfo.get().name = dto.name
-        memberInfoRepository.save(memberInfo.get())
+        memberInfo.name = dto.name
+        memberInfoRepository.save(memberInfo)
     }
 
     @Transactional
     fun changePassword(dto: ChangePasswordReqDto) {
         val memberId = CourtboardContext.getContext().memberId
         val member = memberRepository.findById(UUID.fromString(memberId))
-            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member") }
 
-        if (!PasswordUtil.checkPassword(dto.currentPassword, member.get().passwd)) {
+        if (!PasswordUtil.checkPassword(dto.currentPassword, member.passwd)) {
             throw CustomRuntimeException(HttpStatus.BAD_REQUEST, "Invalid email or password")
         }
 
-        member.get().passwd = PasswordUtil.hashPassword(dto.newPassword)
-        memberRepository.save(member.get())
+        member.passwd = PasswordUtil.hashPassword(dto.newPassword)
+        memberRepository.save(member)
     }
 
     @Transactional
     fun deleteMember() {
         val memberId = CourtboardContext.getContext().memberId
         val memberInfo = memberInfoRepository.findById(UUID.fromString(memberId))
-            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member")
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND, "not found member") }
 
-        memberInfoRepository.delete(memberInfo.get())
+        memberInfoRepository.delete(memberInfo)
         memberRepository.deleteById(UUID.fromString(memberId))
 
         enforcer.deleteUser(memberId)
@@ -183,13 +174,13 @@ class MemberService(
             org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
         )
         return memberInfoRepository.findAll(pageable).content.map {
-            it.toMemberAdminListResDto(getRole(it.id.toString()))
+            it.toMemberAdminListResDto(enforcer.resolveRole(it.id.toString()))
         }
     }
 
     fun updateMemberRole(memberId: String, role: String) {
         memberInfoRepository.findById(UUID.fromString(memberId))
-            ?: throw CustomRuntimeException(HttpStatus.NOT_FOUND, "User not found")
+            .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND, "User not found") }
         enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).forEach { existingRole ->
             enforcer.deleteRoleForUserInDomain(memberId, existingRole, Constants.COURTBOARD)
         }

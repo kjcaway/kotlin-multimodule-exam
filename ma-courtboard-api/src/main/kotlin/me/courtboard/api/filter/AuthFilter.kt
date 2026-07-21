@@ -9,6 +9,7 @@ import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.RequestContext
 import me.courtboard.api.global.dto.ApiResult
+import me.courtboard.api.util.resolveRole
 import me.multimoduleexam.util.JsonUtil
 import org.casbin.jcasbin.main.Enforcer
 import org.slf4j.LoggerFactory
@@ -28,7 +29,7 @@ class AuthFilter(
     @Value("\${app.allowed-origin}")
     val allowedOrigin: String,
 ) : OncePerRequestFilter() {
-    private val logger = LoggerFactory.getLogger(AuthFilter::class.java)
+    private val log = LoggerFactory.getLogger(AuthFilter::class.java)
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val authorization = request.getHeader("Authorization")
@@ -37,7 +38,7 @@ class AuthFilter(
             if (jwt != null) {
                 val claims = jwtProvider.getAllClaimsFromToken(jwt)
                 val memberId = claims["id"] as String
-                val role = enforcer.getRolesForUserInDomain(memberId, Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
+                val role = enforcer.resolveRole(memberId)
                 CourtboardContext.setContext(RequestContext(memberId, role))
             } else {
                 CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
@@ -45,7 +46,7 @@ class AuthFilter(
 
             chain.doFilter(request, response)
         } catch (e: ExpiredJwtException) {
-            logger.error(e.localizedMessage, e)
+            log.error(e.localizedMessage, e)
 
             response.setHeader("Access-Control-Allow-Origin", allowedOrigin)
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -57,8 +58,9 @@ class AuthFilter(
             response.writer.write(JsonUtil.convertToJsonStr(ApiResult.error("expired jwt token")))
 
         } catch (e: Exception) {
-            logger.error(e.localizedMessage, e)
+            log.error(e.localizedMessage, e)
             CourtboardContext.setContext(RequestContext(Constants.GUEST_ID, Constants.ROLE_GUEST))
+            chain.doFilter(request, response)
         }
     }
 

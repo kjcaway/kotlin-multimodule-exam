@@ -1,4 +1,4 @@
-package casbin
+package me.courtboard.api.api.casbin
 
 import me.courtboard.api.global.Constants
 import org.casbin.jcasbin.main.Enforcer

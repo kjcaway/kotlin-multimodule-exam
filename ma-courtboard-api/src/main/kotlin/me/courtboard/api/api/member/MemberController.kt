@@ -57,7 +57,7 @@ class MemberController(
 
     @PostMapping("/api/member/check-verification-code")
     fun checkVerificationCode(@Valid @RequestBody dto: MemberCodeCheckReqDto): ApiResult<*> {
-        val check = memberMailService.checkVerificationCode(dto.email, dto.code ?: "")
+        val check = memberMailService.checkVerificationCode(dto.email, dto.code)
         return ApiResult.ok(check)
     }
 }

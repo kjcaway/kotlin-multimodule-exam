@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import me.courtboard.api.global.Constants
 
 import java.time.LocalDateTime
 
@@ -36,7 +37,7 @@ data class TacticsEntity(
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "created_id")
-    var createdId: String = "UNKNOWN",
+    var createdId: String = Constants.GUEST_ID,
 
     @Column(name = "updated_at")
     var updatedAt: LocalDateTime = LocalDateTime.now(),

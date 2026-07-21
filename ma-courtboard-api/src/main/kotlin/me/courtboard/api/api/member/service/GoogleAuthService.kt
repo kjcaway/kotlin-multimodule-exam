@@ -11,6 +11,8 @@ import me.courtboard.api.api.member.repository.MemberRepository
 import me.courtboard.api.component.JwtProvider
 import me.courtboard.api.global.Constants
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.util.resolveRole
+import me.courtboard.api.util.toJwtClaims
 import org.casbin.jcasbin.main.Enforcer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -28,10 +30,6 @@ class GoogleAuthService(
     @Value("\${google.oauth.client-id}")
     private val clientId: String
 ) {
-    companion object {
-        private const val PROVIDER_GOOGLE = "google"
-        private const val PROVIDER_LOCAL = "local"
-    }
 
     private val verifier: GoogleIdTokenVerifier by lazy {
         GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -54,22 +52,14 @@ class GoogleAuthService(
 
         val memberInfo = memberInfoRepository.findByEmail(email)
             ?.also { existing ->
-                existing.provider = PROVIDER_GOOGLE
+                existing.provider = Constants.PROVIDER_GOOGLE
                 existing.providerUserId = sub
                 if (existing.avatarUrl.isNullOrBlank()) existing.avatarUrl = picture
             }
             ?: createGoogleMember(email, name, picture, sub)
 
-        val role = enforcer.getRolesForUserInDomain(memberInfo.id.toString(), Constants.COURTBOARD).firstOrNull() ?: Constants.ROLE_USER
-        val accessToken = jwtProvider.generateAccessToken(
-            email, mapOf(
-                "id" to memberInfo.id.toString(),
-                "name" to memberInfo.name!!,
-                "email" to memberInfo.email!!,
-                "role" to role,
-                "avatarUrl" to (memberInfo.avatarUrl ?: "")
-            )
-        )
+        val role = enforcer.resolveRole(memberInfo.id.toString())
+        val accessToken = jwtProvider.generateAccessToken(email, memberInfo.toJwtClaims(role))
         val refreshToken = jwtProvider.generateRefreshToken(email)
 
         memberInfo.lastloginAt = LocalDateTime.now()
@@ -99,7 +89,7 @@ class GoogleAuthService(
             email = email,
             name = name,
             avatarUrl = picture ?: "",
-            provider = PROVIDER_GOOGLE,
+            provider = Constants.PROVIDER_GOOGLE,
             providerUserId = sub
         )
         val saved = memberInfoRepository.save(info)

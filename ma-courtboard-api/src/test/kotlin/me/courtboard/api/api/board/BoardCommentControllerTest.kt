@@ -1,12 +1,11 @@
-package api.board
+package me.courtboard.api.api.board
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.board.BoardCommentController
 import me.courtboard.api.api.board.dto.BoardCommentReqDto
 import me.courtboard.api.api.board.dto.BoardCommentResDto
 import me.courtboard.api.api.board.service.BoardCommentService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,11 +28,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class BoardCommentControllerTest {
+class BoardCommentControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var boardCommentService: BoardCommentService
@@ -43,13 +41,9 @@ class BoardCommentControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(boardCommentController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(boardCommentController)
     }
 
     @Test

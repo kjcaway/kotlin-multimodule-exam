@@ -3,7 +3,7 @@ package me.courtboard.api.component
 import jakarta.mail.internet.MimeMessage
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.HtmlUtil
-import org.hibernate.query.sqm.tree.SqmNode.log
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 class CustomMailSender(
     private val javaMailSender: JavaMailSender
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
     private final val mailTemplateFilePath = "mail/signup.html"
 
     fun sendMimeMessage(subject: String, to: String, args: Map<String, String>) {

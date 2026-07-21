@@ -8,6 +8,7 @@ import me.courtboard.api.api.board.entity.BoardEntity
 import me.courtboard.api.api.board.repository.BoardRepository
 import me.courtboard.api.api.board.util.BoardHtmlSanitizer
 import me.courtboard.api.api.member.repository.MemberInfoRepository
+import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import me.multimoduleexam.util.GeneratorUtil
@@ -79,7 +80,7 @@ class BoardService(
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
         val result = entity.toBoardResDto()
-        if (entity.createdId != "UNKNOWN") {
+        if (entity.createdId != Constants.GUEST_ID) {
             val memberInfo = runCatching { UUID.fromString(entity.createdId) }
                 .mapCatching { memberInfoRepository.findById(it).getOrElse { null } }
                 .getOrElse { null }
@@ -95,7 +96,7 @@ class BoardService(
 
         val result = entity.toBoardResDto()
         result.updateCreatedName(name)
-        if (entity.createdId != "UNKNOWN") {
+        if (entity.createdId != Constants.GUEST_ID) {
             val memberInfo = runCatching { UUID.fromString(entity.createdId) }
                 .mapCatching { memberInfoRepository.findById(it).getOrElse { null } }
                 .getOrElse { null }
@@ -134,7 +135,7 @@ class BoardService(
         val entity = boardRepository.findById(id)
             .orElseThrow { CustomRuntimeException(HttpStatus.NOT_FOUND) }
 
-        if (entity.createdId == "UNKNOWN") {
+        if (entity.createdId == Constants.GUEST_ID) {
             throw CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource")
         }
 

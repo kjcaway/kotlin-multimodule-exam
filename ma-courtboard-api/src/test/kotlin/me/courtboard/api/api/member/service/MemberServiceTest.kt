@@ -1,4 +1,4 @@
-package api.service
+package me.courtboard.api.api.member.service
 
 import me.courtboard.api.api.member.repository.MemberInfoRepository
 import me.courtboard.api.api.member.service.MemberMailService

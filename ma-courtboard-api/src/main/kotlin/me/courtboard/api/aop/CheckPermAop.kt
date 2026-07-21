@@ -1,6 +1,6 @@
 package me.courtboard.api.aop
 
-import jakarta.servlet.http.HttpServletResponse
+import me.courtboard.api.global.Constants
 import me.courtboard.api.global.CourtboardContext
 import me.courtboard.api.global.error.CustomRuntimeException
 import org.aspectj.lang.ProceedingJoinPoint
@@ -26,8 +26,6 @@ class CheckPermAop(
     @Around("@annotation(me.courtboard.api.aop.CheckPerm)")
     fun checkPermission(proceedingJoinPoint: ProceedingJoinPoint): Any {
         val request = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request
-        val response: HttpServletResponse? =
-            (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).response
         val requestPath = request.requestURI
         val method = request.method
         val context = CourtboardContext.getContext()
@@ -36,7 +34,7 @@ class CheckPermAop(
         logger.info("memberId : $memberId, role : ${context.role}, requestPath : $requestPath, method : $method")
 
         try {
-            val hasPerm = enforcer.enforce(memberId, "courtboard", requestPath, method.lowercase(Locale.getDefault()))
+            val hasPerm = enforcer.enforce(memberId, Constants.COURTBOARD, requestPath, method.lowercase(Locale.getDefault()))
             if (!hasPerm) {
                 throw CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource")
             }

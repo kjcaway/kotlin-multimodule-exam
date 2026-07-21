@@ -7,4 +7,5 @@ object Constants {
     const val COURTBOARD = "courtboard"
     const val COURTBOARD_JWT_COOKIE_NAME = "courtboardJWT"
     const val GUEST_ID = "UNKNOWN"
+    const val PROVIDER_GOOGLE = "google"
 }

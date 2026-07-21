@@ -1,13 +1,12 @@
-package api.tactics
+package me.courtboard.api.api.tactics
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.courtboard.api.api.tactics.TacticsController
 import me.courtboard.api.api.tactics.dto.TacticsListResDto
-import me.courtboard.api.api.tactics.dto.TacticsReqDto
 import me.courtboard.api.api.tactics.dto.TacticsResDto
 import me.courtboard.api.api.tactics.service.TacticsService
-import me.courtboard.api.global.error.CustomExceptionHandler
 import me.courtboard.api.global.error.CustomRuntimeException
+import me.courtboard.api.support.ControllerTestSupport
+import me.courtboard.api.support.fixture.TacticsFixtures
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,11 +28,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class TacticsControllerTest {
+class TacticsControllerTest : ControllerTestSupport() {
 
     @Mock
     private lateinit var tacticsService: TacticsService
@@ -43,18 +41,14 @@ class TacticsControllerTest {
 
     private lateinit var mockMvc: MockMvc
 
-    private val objectMapper = jacksonObjectMapper()
-
     @BeforeEach
     fun setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(tacticsController)
-            .setControllerAdvice(CustomExceptionHandler())
-            .build()
+        mockMvc = buildMockMvc(tacticsController)
     }
 
     @Test
     fun `POST api tactics - 전술 생성 성공`() {
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         val createdId = "abc123"
         whenever(tacticsService.createTactic(any())).thenReturn(mapOf("id" to createdId))
 
@@ -90,7 +84,7 @@ class TacticsControllerTest {
 
     @Test
     fun `POST api tactics - 서비스에서 BAD_REQUEST 던지면 400 반환`() {
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         whenever(tacticsService.createTactic(any()))
             .thenThrow(CustomRuntimeException(HttpStatus.BAD_REQUEST, "each ball formations cannot be equals"))
 
@@ -205,7 +199,7 @@ class TacticsControllerTest {
     @Test
     fun `PUT api tactics id - 전술 수정 성공`() {
         val id = "tactic-update"
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         whenever(tacticsService.updateTactic(eq(id), any())).thenReturn(mapOf("id" to id))
 
         mockMvc.perform(
@@ -222,7 +216,7 @@ class TacticsControllerTest {
     @Test
     fun `PUT api tactics id - 작성자 본인이 아니면 403 반환`() {
         val id = "tactic-update"
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         whenever(tacticsService.updateTactic(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.FORBIDDEN, "you don't have permission to access this resource"))
 
@@ -239,7 +233,7 @@ class TacticsControllerTest {
     @Test
     fun `PUT api tactics id - UNKNOWN 작성자 전술이면 400 반환`() {
         val id = "tactic-unknown-author"
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         whenever(tacticsService.updateTactic(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.BAD_REQUEST, "this tactic is not created by you"))
 
@@ -257,7 +251,7 @@ class TacticsControllerTest {
     @Test
     fun `PUT api tactics id - 존재하지 않으면 404 반환`() {
         val id = "missing-id"
-        val reqDto = validTacticsReqDto()
+        val reqDto = TacticsFixtures.validReqDto()
         whenever(tacticsService.updateTactic(eq(id), any()))
             .thenThrow(CustomRuntimeException(HttpStatus.NOT_FOUND))
 
@@ -352,32 +346,4 @@ class TacticsControllerTest {
             .andExpect(jsonPath("$.data", hasSize<Any>(0)))
     }
 
-    private fun validTacticsReqDto(): TacticsReqDto {
-        return TacticsReqDto(
-            title = "Fast Break",
-            description = "quick transition",
-            formations = mapOf(
-                "step1" to TacticsReqDto.Formation(
-                    players = listOf(
-                        TacticsReqDto.Player(id = 1L, x = 10, y = 20),
-                        TacticsReqDto.Player(id = 2L, x = 30, y = 40)
-                    ),
-                    ball = TacticsReqDto.Ball(x = 50, y = 60)
-                ),
-                "step2" to TacticsReqDto.Formation(
-                    players = listOf(
-                        TacticsReqDto.Player(id = 1L, x = 100, y = 200),
-                        TacticsReqDto.Player(id = 2L, x = 300, y = 400)
-                    ),
-                    ball = TacticsReqDto.Ball(x = 500, y = 600)
-                )
-            ),
-            playerInfo = listOf(
-                TacticsReqDto.PlayerInfo(id = 1L, color = "#fff", name = "p1"),
-                TacticsReqDto.PlayerInfo(id = 2L, color = "#000", name = "p2")
-            ),
-            isPublic = false,
-            isHalfCourt = false
-        )
-    }
 }
