@@ -107,9 +107,31 @@ spring.datasource.hikari:
 
 ## Testing
 
+루트에서 테스트는 기본 비활성(`tasks.withType<Test> { enabled = false }`)이지만, 이 모듈은
+`build.gradle.kts`에서 `tasks.test`를 다시 활성화한다.
+
 ```bash
-./gradlew :ma-courtboard-api:test
+./gradlew :ma-courtboard-api:test                 # UP-TO-DATE면 스킵됨
+./gradlew :ma-courtboard-api:test --rerun-tasks --console=plain   # 매번 실행 + 깔끔한 로그
 ```
 
 - 서비스/정책: `MemberServiceTest`(Mockito Kotlin), `CasbinPolicyTest`.
 - 컨트롤러: `Board`, `BoardComment`, `Member`, `MemberAdmin`, `My`, `Tactics`, `TacticsAdmin` `*ControllerTest`.
+
+### 콘솔 출력 (`build.gradle.kts`)
+
+`tasks.test`에 설정이 들어 있어 실행 시 콘솔에 결과가 표시된다.
+
+- **테스트 케이스별 로그**: `testLogging`으로 `passed`/`skipped`/`failed` 이벤트 출력
+  (`showStandardStreams = false` — MockMvc 덤프는 숨김, 실패 시 스택트레이스는 `FULL`).
+- **요약**: `TestListener.afterSuite`가 루트 스위트에서 `N tests, N passed, N failed, N skipped` 출력.
+
+### 커버리지 (JaCoCo)
+
+`jacoco` 플러그인 적용. `test`가 끝나면 `finalizedBy(jacocoTestReport)`로 리포트가 이어지고,
+`jacocoTestReport`의 `doLast`가 XML을 파싱해 커버리지 요약(Instructions/Branches/Lines/Methods/Classes)을
+콘솔에 출력한다. HTML 리포트는 `build/reports/jacoco/test/html/index.html`.
+
+- **측정 제외**: `**/dto/**`(모든 `*ReqDto`/`*ResDto`), `**/config/**`, `**/*Application*`.
+  data class 자동 생성 코드 등이 수치를 부풀리지 않도록 비즈니스 로직 위주로만 집계.
+- UP-TO-DATE로 스킵되면 콘솔 출력도 안 나오므로 매번 보려면 `--rerun-tasks` 사용.
