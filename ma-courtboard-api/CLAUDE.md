@@ -21,6 +21,7 @@ src/main/kotlin/me/courtboard/api/
 │   ├── member/   # 회원: MemberController(가입/로그인/구글로그인/이메일인증), MemberAdminController,
 │   │             #   service(MemberService, MemberMailService, GoogleAuthService, MemberAvatarService)
 │   ├── my/       # 내 정보(전술/정보/비번/탈퇴/아바타)
+│   ├── quicktactics/ # 퀵보드: QuickTacticsController(GET/PUT /api/quick-tactics), 사용자별 마지막 작전판 상태 1행 upsert
 │   └── tactics/  # 전술: TacticsController + TacticsAdminController(템플릿 toggle)
 ├── component/    # JwtProvider, CustomMailSender
 ├── config/       # WebConfig(CORS + /uploads 정적 핸들러), BeanConfig
@@ -76,6 +77,7 @@ storage.path: /tmp/courtboard-uploads   # dev
 - **DTO**: `*ReqDto`(요청) / `*ResDto`(응답).
 - **Controller 분리**: 일반 vs admin 별도 파일 (예: `TacticsController` vs `TacticsAdminController`).
 - **전술 데이터**: `formations`, `playerInfo`를 JSON으로 DB `states` 컬럼에 저장.
+- **퀵보드 데이터**(`tbl_quick_tactics`): 로그인 사용자별 마지막 작전판 상태를 `member_id` PK 1행으로 `states`(JSON: `players`, `ball`, `playerInfo`, `isHalfCourt`)에 upsert 저장. 단일 정지 상태(포메이션 1개)만 다룸. `@CheckLogin`으로 로그인 필수(Casbin 정책 불필요).
 - **게시판 본문**: `BoardHtmlSanitizer`(jsoup)로 XSS sanitize 후 저장. `data:` 프로토콜은 기존 base64 게시물 호환용으로 유지.
 - **게시판 수정/삭제**: 작성자 본인만(author-only 체크).
 - **공통 모듈**: `module-common` 유틸은 `me.multimoduleexam.util` 패키지로 임포트.
@@ -116,7 +118,7 @@ spring.datasource.hikari:
 ```
 
 - 서비스/정책: `MemberServiceTest`(Mockito Kotlin), `CasbinPolicyTest`.
-- 컨트롤러: `Board`, `BoardComment`, `Member`, `MemberAdmin`, `My`, `Tactics`, `TacticsAdmin` `*ControllerTest`.
+- 컨트롤러: `Board`, `BoardComment`, `Member`, `MemberAdmin`, `My`, `QuickTactics`, `Tactics`, `TacticsAdmin` `*ControllerTest`.
 
 ### 콘솔 출력 (`build.gradle.kts`)
 

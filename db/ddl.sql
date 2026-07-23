@@ -102,3 +102,10 @@ CREATE TABLE IF NOT EXISTS tbl_board_comment
 CREATE INDEX IF NOT EXISTS idx_board_comment_board_id ON tbl_board_comment (board_id);
 CREATE INDEX IF NOT EXISTS idx_board_comment_parent_id ON tbl_board_comment (parent_id);
 CREATE INDEX IF NOT EXISTS idx_board_comment_created_at ON tbl_board_comment (created_at);
+
+CREATE TABLE tbl_quick_tactics
+(
+    member_id  VARCHAR(36) PRIMARY KEY,
+    states     TEXT      NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+);
