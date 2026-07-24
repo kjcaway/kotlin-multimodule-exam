@@ -105,7 +105,7 @@ CREATE INDEX IF NOT EXISTS idx_board_comment_created_at ON tbl_board_comment (cr
 
 CREATE TABLE tbl_quick_tactics
 (
-    member_id  VARCHAR(36) PRIMARY KEY,
+    member_id  VARCHAR(64) PRIMARY KEY,
     states     TEXT      NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
